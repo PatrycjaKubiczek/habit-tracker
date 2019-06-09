@@ -1,0 +1,22 @@
+{
+  "habits": [
+    {
+      "habitTitle": "task numero 1",
+      "habitId": 0,
+      "habitPoints": 1,
+      "dates": ["2019-06-12T13:37:27+00:00"]
+    },
+    {
+      "habitTitle": "task numero 2",
+      "habitId": 1,
+      "habitPoints": 0,
+      "dates": []
+    },
+     {
+      "habitTitle": "task numero 3",
+      "habitId": 2,
+      "habitPoints": 2,
+      "dates": ["2019-06-12T13:37:27+00:00", "2019-06-11T13:37:27+00:00"]
+    }
+   ]
+  }
