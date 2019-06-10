@@ -3,6 +3,7 @@ import { Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 import firebase from '../firebase.js'
 import moment from 'moment';
+import TaskCol from './TaskCol.js'
 
 
 const StyledCol = styled.div`
@@ -51,7 +52,9 @@ export default class TaskRow extends Component {
 		this.state = {
 			daysInMonth: [],
 			currentMonth: '',
-			arrDates: []
+			arrDates: [],
+			oldDates: {},
+			dates: this.props.dates
 		}
 	}
 
@@ -74,102 +77,108 @@ export default class TaskRow extends Component {
 		this.setState({
     		// daysInMonth: daysMonth(30)
     		daysInMonth: daysInCurrentMonthArr,
-    		dates: datesFromArr
+    		arrDates: datesFromArr
     	})
-	}
+    	// console.log(this.state.arrDates)
+    }
 
 
-	handleClick = (e) => {
-		e.preventDefault();
-		if(e.target.className === 'task taskDone col') {
-			this.subtractPoint()
-			this.removeDate(e)
-			e.target.className = 'task col';
-		} else {
-			this.addPoint()
-			this.addDate(e)
-			e.target.className = 'task taskDone col'
-		}
-	}
+    handleClick = (e) => {
+    	e.preventDefault();
+    	if(e.target.className === 'task taskDone col') {
+    		this.subtractPoint()
+    		this.removeDate(e)
+    		e.target.className = 'task col';
+    	} else {
+    		this.addPoint()
+    		this.addDate(e)
+    		e.target.className = 'task taskDone col'
+    	}
+    }
 
-	addDate = (e) => {
-		let datesRef = firebase.database().ref('habits/' + this.props.id).child('dates');
-		let pushDate = e.target.dataset.date;
-		let newValueindex;
+    addDate = (e) => {
+    	let datesRef = firebase.database().ref('habits/' + this.props.newid).child('dates');
+    	let pushDate = e.target.dataset.date;
+    	let newValueindex;
 
-		var newPushedRef = datesRef.push();
-		newPushedRef.set({pushDate});
-	}
+    	var newPushedRef = datesRef.push();
+    	newPushedRef.set({pushDate});
+    }
 
-	removeDate = e => {
-		let datesRef = firebase.database().ref('habits/' + this.props.id).child('dates'); // TODO 
-		datesRef.on('value', snapshot => {
-			let dates = snapshot.val()
-			for(let key in dates){
-				console.log(key)
+    removeDate = e => {
+		let datesRef = firebase.database().ref('habits/' + this.props.newid).child('dates'); // TODO 
+	// 	datesRef.on('value', snapshot => {
+	// 		let dates = snapshot.val()
+	// 		for(let key in dates){
+	// 	}
+	// })
+let removeDate = e.target.dataset.key;
+let removeRefs = datesRef.child(removeDate)
+removeRefs.remove();
+
+}
+
+
+addPoint = (e) => {
+	let pointRef = firebase.database().ref('habits/' + this.props.newid);
+	if(this.props.points >= 0 && (this.props.points <= this.state.daysInMonth.length - 1))
+		pointRef.update({habitPoints: this.props.points + 1});
+}
+
+subtractPoint = (e) => {
+	let pointRef = firebase.database().ref('habits/' + this.props.newid +'/');
+	if(this.props.points === 0)
+		return;
+	pointRef.update({habitPoints: this.props.points - 1});
+}
+
+getDates = () => {
+	let datesRef = firebase.database().ref('habits/' + this.props.newid + '/dates');
+	datesRef.once('value', snapshot => {
+		let newDates = []
+		snapshot.forEach((child) => {
+			if(child.val().pushDate !== undefined){
+				newDates.push(child.val().pushDate)
 			}
+		});
 
+		this.setState({
+			arrDates: newDates
 		})
-		// console.log(e)
+	})
+
+
+	if(this.state.dates !== undefined){
+		let datesMoment = this.state.dates.map((date) => {
+			return moment(date).format("DD-MM-YYYY");
+		});
 	}
+}
 
+render() {
 
-	addPoint = (e) => {
-		let pointRef = firebase.database().ref('habits/' + this.props.id);
-		if(this.props.points >= 0 && (this.props.points <= this.state.daysInMonth.length - 1))
-			pointRef.update({habitPoints: this.props.points + 1});
-	}
+	return (
+		<StyledCol>
 
-	subtractPoint = (e) => {
-		let pointRef = firebase.database().ref('habits/' + this.props.id);
-		if(this.props.points === 0)
-			return;
-		pointRef.update({habitPoints: this.props.points - 1});
-	}
+		<Row style={{marginTop: '20px'}}>
+		<p style={{marginBottom: '5px'}}>{this.props.title} - {this.props.points}/30</p>
+		</Row>
 
-	getDates = () => {
-		let datesRef = firebase.database().ref('habits/' + this.props.id + '/dates');
-		datesRef.once('value', snapshot => {
-			let newDates = []
-			snapshot.forEach((child) => {
-			    if(child.val().pushDate !== undefined){
-			    	newDates.push(child.val().pushDate)
-			    }
-			});
+		<Row>
+		{this.state.daysInMonth.map(number => {
+			if(this.props.dates.includes(number)){
+				for(let date in this.props.oldDates){
+					if(this.props.oldDates[date].pushDate === number)
+						return <Col className="task taskDone" data-key={date} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClick} style={{border: '1px solid green'}}></Col>
+				}
 
-			this.setState({
-				arrDates: newDates
-			})
-		})
+			} else {
+				return <Col className="task" data-date={number} id={"task_" + this.props.id + "_" + number} key={number} onClick={this.handleClick} style={{border: '1px solid green'}}></Col>
+			}
+		})}
+		</Row>
 
-
-		if(this.state.dates !== undefined){
-			let datesMoment = this.state.dates.map((date) => {
-				return moment(date).format("DD-MM-YYYY");
-			});
-		}
-	}
-
-	render() {
-
-		return (
-			<StyledCol>
-
-			<Row style={{marginTop: '20px'}}>
-			<p style={{marginBottom: '5px'}}>{this.props.title} - {this.props.points}/30</p>
-			</Row>
-			
-			<Row>
-			{this.state.daysInMonth.map(number => {
-				
-				if(this.props.dates.includes(number)){
-					return <Col className="task taskDone" keyid={this.props.oldDates} data-date={number} id={"task_" + this.props.id + "_" + number} key={number} onClick={this.handleClick} style={{border: '1px solid green'}}></Col>}
-				else {
-					return <Col className="task" data-date={number} id={"task_" + this.props.id + "_" + number} key={number} onClick={this.handleClick} style={{border: '1px solid green'}}></Col>}
-				})}
-			</Row>
-
-			</StyledCol>
-			);
-	}
+		</StyledCol>
+		);
+}
 }

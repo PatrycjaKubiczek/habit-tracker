@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import firebase from '../firebase.js'
 
-
-import { Container, Row, Col, Button, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Button, Spinner, InputGroup, FormControl } from 'react-bootstrap';
 import styled from 'styled-components';
 import TaskRow from './TaskRow'
 
@@ -31,8 +30,6 @@ const StyledCol = styled.div`
 }
 `
 
-
-
 class Mycontainer extends Component {
   constructor(props){
     super(props)
@@ -40,6 +37,7 @@ class Mycontainer extends Component {
       daysInMonth: [],
       habits: [],
       loading: true,
+      input: ''
     }
   }
 
@@ -51,96 +49,105 @@ class Mycontainer extends Component {
   }
 
   componentDidMount(){
+    this.setHabits()
 
-    const habitRef = firebase.database().ref('habits');
-    habitRef.on('value', snapshot => {
-      this.setState({loading: false})
-      let habits = snapshot.val();
-
-      let newState = [];
-      // for (let date in habits[habit].dates) {
-      //     let newStateDates = []
-      //     // console.log(habits[habit].dates[date])
-      //     newStateDates.push(habits[habit].dates[date].pushDate)
-      //     console.log(newStateDates)
-      //   }
-      // forEach
-      for (let habit in habits) {
-        newState.push({
-          id: habits[habit].habitId,
-          habit: habits[habit].habitTitle,
-          points: habits[habit].habitPoints,
-          dates: habits[habit].dates
-        });
-      }
-      this.setState({
-        habits: newState
-      })
-    });
   };
-  // cbangeDates = e => {
-  //   console.log(habit)
-  // }
-  // handleHabit = (e) => {
-  //   console.log(e.target.className)
-  //  var pushedRef = firebase.database().ref('habits/' + this.habitId);
-  //  pushedRef.on("value", snapshot =>{
-  //   let habit = snapshot.val()   })
 
-  // } 
+  setHabits = () => {
+    const habitRef = firebase.database().ref('habits');
+      habitRef.on('value', snapshot => {
+        this.setState({loading: false})
+        let habits = snapshot.val();
 
-  renderHabitList = habit => {
-    let newDatesArr = [];
-    let keyDate = ''
-    for (let date in habit.dates){
-      keyDate = date
-      console.log(keyDate)
-      newDatesArr.push(habit.dates[date].pushDate)
+        let newState = [];
+        for (let habit in habits) {
+          newState.push({
+            idkey: habit,
+            id: habits[habit].habitId,
+            habit: habits[habit].habitTitle,
+            points: habits[habit].habitPoints,
+            dates: habits[habit].dates
+          });
+        }
+        this.setState({
+          habits: newState
+        })
+      });
     }
-    
-    return (<TaskRow title={habit.habit} dates={newDatesArr} oldDates={habit.dates} points={habit.points} id={habit.id} onClick={this.handleHabit}></TaskRow>)
+
+    handleChange = e => {
+      this.setState({ input: e.target.value });
+    }
+
+    addNewHabit = e => {
+
+      const habitRef = firebase.database().ref('habits');
+        habitRef.push({
+          habitTitle: this.state.input,
+          habitPoints: 0,
+          dates: {}
+        });
+
+      }
+
+      renderHabitList = habit => {
+        let newDatesArr = [];
+        let keyDate = ''
+        for (let date in habit.dates){
+          keyDate = date
+          newDatesArr.push(habit.dates[date].pushDate)
+        }
+
+        return (<TaskRow title={habit.habit} dates={newDatesArr} oldDates={habit.dates} points={habit.points} newid={habit.idkey} onClick={this.handleHabit}></TaskRow>)
       };
-  render(){
-    const { loading } = this.state;
+      render(){
+        const { loading } = this.state;
 
-    return (
+        return (
+          <StyledCol>
+          <link href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" rel="stylesheet" />
+
+          {loading && <Container style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+          <p>Wczytywanie...</p>
+          <Spinner animation="border" role="status">
+          <span className="sr-only">Wczytywanie...</span>
+          </Spinner>
+          </Container>
+        }
+        {!loading &&
+          <Container style={{maxWidth: '900px'}}>
+
+          <h2>Czerwiec</h2>
+          <Row>
+          {this.state.daysInMonth.map(number => (
+            <Col className="calendar task" key={number} >{number}</Col>
+            ))}
+          </Row>
+
+          {this.state.habits.map(this.renderHabitList)}
 
 
+          <Row style={{marginTop: '20px', justifyContent: 'center'}}>
+          <Col md="auto">
+          <InputGroup className="mb-3">
+          <FormControl ref="taskInput"
+          placeholder="nazwa nawyku"
+          aria-label="nazwa nawyku"
+          aria-describedby="basic-addon2"
+          onChange={this.handleChange}
+          />
+          <InputGroup.Append>
+          <Button onClick={this.addNewHabit}>dodaj nowe zadanie</Button>
+          </InputGroup.Append>
+          </InputGroup>
+          </Col>
+          </Row>
 
-      <StyledCol>
-      <link href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" rel="stylesheet" />
-      
-      {loading && <Container style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-      <p>Wczytywanie...</p>
-      <Spinner animation="border" role="status">
-      <span className="sr-only">Wczytywanie...</span>
-      </Spinner>
-      </Container>
+          </Container>}
+
+          </StyledCol>
+          );
+      }
     }
-    {!loading &&
-      <Container style={{maxWidth: '900px'}}>
 
-      <h2>Czerwiec</h2>
-      <Row>
-      {this.state.daysInMonth.map(number => (
-        <Col className="calendar task" key={number} >{number}</Col>
-        ))}
-      </Row>
-      
-      {this.state.habits.map(this.renderHabitList)}
-
-
-      <Row style={{marginTop: '20px'}}>
-      <Col style={{flex: '0 0 100%'}}>
-      <Button style={{marginBottom: 0}}>+ Dodaj kolejne zadanie</Button>
-      </Col>
-      </Row>
-
-      </Container>}
-      
-      </StyledCol>
-      );
-  }
-}
-
-export default Mycontainer;
+    export default Mycontainer;
