@@ -4,18 +4,18 @@ import './App.css';
 import Mycontainer from './components/Mycontainer';
 
 function App() {
-  return (
+	return (
 
-    <div className="App">
+		<div className="App">
 
-      <header className="App-header">
-        <h2 style={{marginBottom: '20px'}}>Habit tracker</h2>
-        <Mycontainer />
-
-        
-      </header>
-    </div>
-  );
+		<header className="App-header">
+		<h2 style={{margin: '20px 0'}}>Habit tracker</h2>
+		</header>
+		<main>
+		<Mycontainer />
+		</main>
+		</div>
+		);
 }
 
 export default App;
