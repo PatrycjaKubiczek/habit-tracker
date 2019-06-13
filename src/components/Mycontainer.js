@@ -24,6 +24,9 @@ const StyledCol = styled.div`
 .calendar {
 	cursor: default
 }
+.error {
+	border-color: red
+}
 `
 
 class Mycontainer extends Component {
@@ -33,7 +36,8 @@ class Mycontainer extends Component {
 			daysInMonth: [],
 			habits: [],
 			loading: true,
-			input: ''
+			input: '',
+			error: false
 		}
 	}
 
@@ -42,11 +46,11 @@ componentWillMount(){
 	this.setState({
 		daysInMonth: daysMonth(30)
 	})
-	this.setHabits()
+	
 }
 
 componentDidMount(){
-	
+	this.setHabits()
 
 }
 
@@ -79,6 +83,10 @@ handleChange = e => {
 }
 
 addNewHabit = e => {
+	if(this.state.input.length == 0){
+		this.setState({error: true})
+		return
+	}
 	const habitRef = firebase.database().ref('habits');
 	habitRef.push({
 		habitTitle: this.state.input,
@@ -86,6 +94,7 @@ addNewHabit = e => {
 		dates: {},
 		percentage: 0
 	});
+	this.setState({error: false})
 }
 
 renderHabitList = (habit, index, newhabits) => {
@@ -98,7 +107,7 @@ renderHabitList = (habit, index, newhabits) => {
 
 
 render(){
-	const { loading } = this.state;
+	const { loading, error } = this.state;
 
 	return (
 		<StyledCol>
@@ -114,16 +123,11 @@ render(){
 		}
 		{!loading &&
 			<>
-			<Container style={{maxWidth: '900px'}}>
-			<h2 style={{padding: '20px 0'}}>Czerwiec</h2>
-			</Container>
-
-			<Container style={{maxWidth: '900px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'}}>
-			{this.state.habits.map(this.renderHabitList)}
-			</Container>
-
-			<Row style={{marginTop: '20px', justifyContent: 'center'}}>
-			<Col md="auto">
+			<Container style={{maxWidth: '900px', display: 'flex', justifyContent: 'space-between', padding: '5px'}}>
+			<Row style={{width: '100%', padding: '20px 0', margin: '20px 0  0 0', justifyContent: 'space-between'}}>
+			<h2>Czerwiec</h2>
+			<Col md={6} style={{padding: '0 0 0 10px'}}>
+			{error && <small style={{display: 'block', textAlign:'left', color: 'red'}}>pole jest wymagane *</small>}
 			<InputGroup className="mb-3">
 			<FormControl ref="taskInput"
 			placeholder="wpisz nazwę..."
@@ -131,13 +135,23 @@ render(){
 			aria-describedby="basic-addon2"
 			onChange={this.handleChange}
 			style={{boxShadow: 'none'}}
+			className={error ? 'error' : ''}
 			/>
+			
 			<InputGroup.Append>
 			<Button onClick={this.addNewHabit} style={{borderColor: '#58a4b0', backgroundColor: '#58a4b0', boxShadow: 'none'}}>dodaj nowy nawyk</Button>
 			</InputGroup.Append>
 			</InputGroup>
 			</Col>
 			</Row>
+			</Container>
+
+			<Container style={{maxWidth: '900px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'}}>
+			{this.state.habits.map(this.renderHabitList)}
+			</Container>
+			<Container style={{maxWidth: '900px'}}>
+			
+			</Container>
 			</>
 		}
 
