@@ -37,17 +37,18 @@ class Mycontainer extends Component {
 		}
 	}
 
-	componentWillMount(){
+componentWillMount(){
 	const daysMonth = (N) => Array.from({length: N}, (v, k) => k+1); //TODO 
 	this.setState({
 		daysInMonth: daysMonth(30)
 	})
+	this.setHabits()
 }
 
 componentDidMount(){
-	this.setHabits()
+	
 
-};
+}
 
 setHabits = () => {
 	const habitRef = firebase.database().ref('habits');
@@ -69,6 +70,7 @@ setHabits = () => {
 		this.setState({
 			habits: newState
 		})
+
 	});
 }
 
@@ -77,7 +79,6 @@ handleChange = e => {
 }
 
 addNewHabit = e => {
-
 	const habitRef = firebase.database().ref('habits');
 	habitRef.push({
 		habitTitle: this.state.input,
@@ -85,17 +86,17 @@ addNewHabit = e => {
 		dates: {},
 		percentage: 0
 	});
-
 }
 
-renderHabitList = habit => {
+renderHabitList = (habit, index, newhabits) => {
 	let newDatesArr = [];
 	for (let date in habit.dates){
 		newDatesArr.push(habit.dates[date].pushDate)
 	}
-
-	return (<TaskRow percentage={habit.percentage} title={habit.habit} dates={newDatesArr} oldDates={habit.dates} points={habit.points} newid={habit.idkey} onClick={this.handleHabit}></TaskRow>)
+	return (<TaskRow habits={newhabits} percentage={habit.percentage} title={habit.habit} dates={newDatesArr} oldDates={habit.dates} points={habit.points} newid={habit.idkey} />)
 };
+
+
 render(){
 	const { loading } = this.state;
 
@@ -103,7 +104,7 @@ render(){
 		<StyledCol>
 		<link href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" rel="stylesheet" />
 
-		{!loading && 
+		{loading && 
 			<Container style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', height: '90vh'}}>
 			<p>Wczytywanie...</p>
 			<Spinner animation="border" role="status">
@@ -111,10 +112,10 @@ render(){
 			</Spinner>
 			</Container>
 		}
-		{loading &&
+		{!loading &&
 			<>
 			<Container style={{maxWidth: '900px'}}>
-			<h2 style={{margin: '20px 0'}}>Czerwiec</h2>
+			<h2 style={{padding: '20px 0'}}>Czerwiec</h2>
 			</Container>
 
 			<Container style={{maxWidth: '900px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between'}}>
