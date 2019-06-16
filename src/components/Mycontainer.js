@@ -7,33 +7,61 @@ import TaskRow from './TaskRow'
 
 
 const StyledCol = styled.div`
-.col {
-	margin: 2px;
-	cursor: pointer;
-	user-select: none;
-}
+	.col {
+		margin: 2px;
+		cursor: pointer;
+		user-select: none;
+	}
 
-.task {
-	border: 1px solid #E0DCE2;
-	width: 25px;
-	height: 25px;
-	flex: 0 0 25px;
-	padding: 0;
-}
+	.task {
+		border: 1px solid #E0DCE2;
+		width: 25px;
+		height: 25px;
+		flex: 0 0 25px;
+		padding: 0;
+	}
 
-.calendar {
-	cursor: default
-}
-.error {
-	border-color: red
-}
+	.calendar {
+		cursor: default
+	}
+	.error {
+		border-color: red
+	}
+	.container__loading {
+
+	}
+	.row__subtitle {
+		width: 100%;
+		padding: 20px 0;
+		margin: 20px 0 0 0;
+		justify-content: space-between;
+		@media screen and (max-width: 769px){
+			justify-content: center
+			.col-md-6 {
+				padding: 0 !important;
+			}
+		}
+	}
+	.container__loading {
+		display: flex;
+		justify-content: center; 
+		align-items: center; 
+		flex-direction: column;
+		height: 90vh;
+	}
+	.container__app {
+		max-width: 900px;
+		display: flex;
+		justify-content: space-between;
+		padding: 5px;
+	}
 `
 
 class Mycontainer extends Component {
 	constructor(props){
 		super(props)
 		this.state = {
-			daysInMonth: [],
+			// daysInMonth: [],
 			habits: [],
 			loading: true,
 			input: '',
@@ -42,10 +70,10 @@ class Mycontainer extends Component {
 	}
 
 componentWillMount(){
-	const daysMonth = (N) => Array.from({length: N}, (v, k) => k+1); //TODO 
-	this.setState({
-		daysInMonth: daysMonth(30)
-	})
+	// const daysMonth = (N) => Array.from({length: N}, (v, k) => k+1); //TODO 
+	// this.setState({
+	// 	// daysInMonth: daysMonth(30)
+	// })
 	
 }
 
@@ -64,7 +92,7 @@ setHabits = () => {
 		for (let habit in habits) {
 			newState.push({
 				idkey: habit,
-				id: habits[habit].habitId,
+				// id: habits[habit].habitId,
 				habit: habits[habit].habitTitle,
 				points: habits[habit].habitPoints,
 				dates: habits[habit].dates,
@@ -102,7 +130,7 @@ renderHabitList = (habit, index, newhabits) => {
 	for (let date in habit.dates){
 		newDatesArr.push(habit.dates[date].pushDate)
 	}
-	return (<TaskRow habits={newhabits} percentage={habit.percentage} title={habit.habit} dates={newDatesArr} oldDates={habit.dates} points={habit.points} newid={habit.idkey} />)
+	return (<TaskRow habits={newhabits} percentage={habit.percentage} title={habit.habit} currentDates={newDatesArr} habitDates={habit.dates} points={habit.points} newid={habit.idkey} />)
 };
 
 
@@ -114,7 +142,7 @@ render(){
 		<link href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" rel="stylesheet" />
 
 		{loading && 
-			<Container style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', height: '90vh'}}>
+			<Container className="container__loading">
 			<p>Wczytywanie...</p>
 			<Spinner animation="border" role="status">
 			<span className="sr-only">Wczytywanie...</span>
@@ -123,8 +151,8 @@ render(){
 		}
 		{!loading &&
 			<>
-			<Container style={{maxWidth: '900px', display: 'flex', justifyContent: 'space-between', padding: '5px'}}>
-			<Row style={{width: '100%', padding: '20px 0', margin: '20px 0  0 0', justifyContent: 'space-between'}}>
+			<Container className="container__app">
+			<Row className="row__subtitle">
 			<h2>Czerwiec</h2>
 			<Col md={6} style={{padding: '0 0 0 10px'}}>
 			{error && <small style={{display: 'block', textAlign:'left', color: 'red'}}>pole jest wymagane *</small>}
