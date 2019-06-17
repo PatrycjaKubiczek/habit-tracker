@@ -3,10 +3,6 @@ import ReactMinimalPieChart from 'react-minimal-pie-chart';
 
 export default class ProgressPercentageChart extends React.Component {
 
-	constructor(props) {
-		super(props);
-	}
-
 	render() {
 		return (
 			<ReactMinimalPieChart

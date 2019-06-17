@@ -2,12 +2,6 @@ import React from 'react';
 import { Button, Modal } from 'react-bootstrap';
 export default class ConfirmationModal extends React.Component {
 
-	constructor(props) {
-		super(props);
-		this.state = {
-		}
-	}
-
 	render() {
 		return (
 			<Modal show={this.props.showmodal} onHide={this.props.handleCloseModal}>
@@ -19,7 +13,7 @@ export default class ConfirmationModal extends React.Component {
 			<Button variant="secondary" onClick={this.props.handleCloseModal}>
 			Anuluj
 			</Button>
-			<Button variant="danger" onClick={this.props.handleClick}>
+			<Button variant="danger" onClick={this.props.handleConfirm}>
 			Tak
 			</Button>
 			</Modal.Footer>

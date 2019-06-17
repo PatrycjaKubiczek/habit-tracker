@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, Modal } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import firebase from '../firebase.js'
 import moment from 'moment';
@@ -89,28 +89,23 @@ export default class TaskRow extends Component {
 		super(props)
 		this.state = {
 			daysInMonth: [],
-			currentMonth: '',
-			currentDates: this.props.dates,
-			// arrDates: [],
-			// oldDates: {},
-			// dates: this.props.dates,
+			// currentMonth: '', // TODO set it to current month name
 			editingTask: false,
-			input: this.props.title,
-			currentHabits: this.props.habits,
+			inputHabitTitle: this.props.title,
 			confirmed: false,
 			showModal: false,
 			errorInput: false,
 			percentage: 0
 		}
+		this.datesFirebaseRef = firebase.database().ref('habits/' + this.props.newid).child('dates');
+		this.idHabitFirebaseRef = firebase.database().ref('habits/' + this.props.newid);
 	}
 
 
 	componentWillMount(){
 		let daysInCurrentMonthArr = this.getFormatedDaysArray();
-		let datesFromArr = this.getDatesFromDB();
 		this.setState({
 			daysInMonth: daysInCurrentMonthArr,
-			arrDates: datesFromArr
 		})
 		this.setPercentage()
 	}
@@ -126,7 +121,7 @@ export default class TaskRow extends Component {
 			arrFormatDates.push(formatDate);
 			daysInMonthMoment--;
 		}
-		return	arrFormatDates.reverse();
+		return arrFormatDates.reverse(); //["2019-06-01", ...]
 	}
 
 
@@ -143,34 +138,6 @@ export default class TaskRow extends Component {
 		}
 		return arrIsoDates.reverse(); 
 	}
-
-
-	//GET DATES FROM DATABASE
-	getDatesFromDB = () => {
-		let datesRef = firebase.database().ref('habits/' + this.props.newid + '/dates');
-		datesRef.once('value', snapshot => {
-			let newDates = []
-			snapshot.forEach((child) => {
-				if(child.val().pushDate !== undefined){
-					newDates.push(child.val().pushDate)
-				}
-			});
-
-			this.setState({
-				arrDates: newDates
-			})
-		})
-
-
-		if(this.state.dates !== undefined){
-			let datesMoment = this.state.dates.map((date) => {
-				return moment(date).format("DD-MM-YYYY");
-			});
-		}
-	}
-
-
-
 	
 	handleClickOnTask = (e) => { // add/remove date for each task
 		e.preventDefault();
@@ -191,19 +158,16 @@ export default class TaskRow extends Component {
 
 	// DATES
 	addDate = (e) => {
-		let datesRef = firebase.database().ref('habits/' + this.props.newid).child('dates');
 		let pushDate = e.target.dataset.date;
-		var newPushedRef = datesRef.push();
+		var newPushedRef = this.datesFirebaseRef.push();
 		newPushedRef.set({pushDate});
 
-			// this.setPercentage()
-			this.setPercentage()
+		this.setPercentage()
 	}
 
 	removeDate = e => {
-		let datesRef = firebase.database().ref('habits/' + this.props.newid).child('dates'); // TODO 
 		let removeDate = e.target.dataset.date;
-		let removeRefs = datesRef.child(removeDate)
+		let removeRefs = this.datesFirebaseRef.child(removeDate)
 		removeRefs.remove();
 		this.setPercentage()
 		// this.updatePercentage();
@@ -211,19 +175,15 @@ export default class TaskRow extends Component {
 
 	// POINTS
 	addPoint = () => {
-		let pointRef = firebase.database().ref('habits/' + this.props.newid);
 		if(this.props.points >= 0 && (this.props.points <= (this.state.daysInMonth.length - 1))){
-			
-			pointRef.update({habitPoints: this.props.points + 1});	
-		}
-				console.log(this.props.points)
-		
+			this.idHabitFirebaseRef.update({habitPoints: this.props.points + 1});	
+		}	
 	}
+
 	subtractPoint = () => {
-		let pointRef = firebase.database().ref('habits/' + this.props.newid +'/');
 		if(this.props.points === 0)
 			return;
-		pointRef.update({habitPoints: this.props.points - 1});
+		this.idHabitFirebaseRef.update({habitPoints: this.props.points - 1});
 		// this.setPercentage()
 	}
 
@@ -237,17 +197,7 @@ export default class TaskRow extends Component {
 		this.setState({
 			percentage: perc
 		})
-		console.log('setting to: ' + perc + 'propspPoints:' + this.props.points)
 	}
-	// updatePercentage = (e) => {
-	// 	let pointsRef = firebase.database().ref('habits/' + this.props.newid);
-	// 	pointsRef.once('value', snapshot => {
-	// 		let habitPoints = snapshot.child('habitPoints').val()
-	// 		let perc = this.changeIntoPercentage(habitPoints, 30)
-	// 		pointsRef.update({percentage: perc});
-	// 	})
-	// }
-
 	editHabitTitle = (e) => {
 		if(this.state.editingTask){
 			this.setState({editingTask: false})
@@ -257,18 +207,16 @@ export default class TaskRow extends Component {
 	}
 
 	saveHabitTitle = (e) => {
-		if(this.state.input.length == 0){
+		if(this.state.inputHabitTitle.length === 0){
 			this.setState({errorInput: true})
 			return;
 		}
-		let titleRef = firebase.database().ref('habits/' + this.props.newid +'/');
-		titleRef.update({habitTitle: this.state.input});
-		this.setState({editingTask: false})
-		this.setState({errorInput: false})
+		this.idHabitFirebaseRef.update({habitTitle: this.state.inputHabitTitle});
+		this.setState({editingTask: false, errorInput: false})
 	}
 
 	deleteHabit = () => {
-		firebase.database().ref('habits/' + this.props.newid).remove();
+		this.idHabitFirebaseRef.remove();
 	}
 
 	askToConfirmRemoval = () => {
@@ -283,11 +231,11 @@ export default class TaskRow extends Component {
 		this.setState({showModal: false})
 	}
 	handleChange = e => {
-		this.setState({ input: e.target.value });
+		this.setState({ inputHabitTitle: e.target.value });
 	}
 
 	render() {
-		const { editingTask, errorInput, showModal } = this.state;
+		const { daysInMonth, editingTask, inputHabitTitle, errorInput, showModal } = this.state;
 
 		return (
 			<StyledCol className="col-md-6 col-sm-12">
@@ -300,26 +248,24 @@ export default class TaskRow extends Component {
 				<input type="text" 
 				className={errorInput ? 'input-title error' : 'input-title'}
 				ref={input => input && input.focus()} 
-				value={this.state.input} 
+				value={inputHabitTitle} 
 				onChange={this.handleChange} 
 				onKeyPress={e => {if(e.key === 'Enter'){ this.saveHabitTitle()}}} 
 				/> }
 				<span className="habit-btns"> 
-				{!editingTask ? 
-					<Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł">
-					<i className="fas fa-edit" ></i>
-					</Button> :
-					<Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz">
-					<i class="fas fa-check"></i>
-					</Button> 
+				{!editingTask 
+					? 
+					<Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button> 
+					:
+					<Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz"><i className="fas fa-check"></i></Button> 
 				}
 				<Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń"><i className="far fa-trash-alt" ></i></Button>
 				</span>
 				</p>
+
 				<ConfirmationModal 
-					showmodal={this.state.showModal} 
-					confirmation={this.state.confirmed} 
-					handleClick={this.confirm} 
+					showmodal={showModal} 
+					handleConfirm={this.confirm} 
 					handleHide={this.handleHide}
 					handleCloseModal={this.handleCloseModal}
 				/>
@@ -329,7 +275,7 @@ export default class TaskRow extends Component {
 				<Col md={6} sm={12}>
 
 				<div style={{minWidth: '205px', flexWrap: 'wrap', alignItems: 'center', display: 'flex'}}>
-				{this.state.daysInMonth.map((number, index) => {
+				{daysInMonth.map((number, index) => {
 					if(this.props.currentDates.includes(number)){
 						return <Col className='task taskDone' data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745 '}}>{index+1}</Col>
 					} else {
@@ -345,7 +291,6 @@ export default class TaskRow extends Component {
 					// 		if(this.props.oldDates[date].pushDate === number)
 					// 			return <Col className="task taskDone" data-key={date} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745 '}}>{index+1}</Col>
 					// 	}
-
 					// } else {
 					// 	return <Col className="task" data-date={number} id={"task_" + this.props.id + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745'}}>{index+1}</Col>
 					// }
@@ -354,6 +299,7 @@ export default class TaskRow extends Component {
 			}
 			</div>
 			</Col>
+
 			<Col className="col__progress" md={6} sm={12}>
 			<p>Postęp:</p>
 			<ProgressPercentageChart percentage={this.state.percentage}/>

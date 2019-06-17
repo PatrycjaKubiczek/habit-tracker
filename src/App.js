@@ -1,5 +1,4 @@
 import React from 'react';
-// import firebase from './firebase.js'
 import './App.css';
 import Mycontainer from './components/Mycontainer';
 

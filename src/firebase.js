@@ -1,4 +1,4 @@
-// import firebase from 'firebase'
+	// import firebase from 'firebase'
 const firebase = require('firebase/app');
 // require('firebase/auth');
 require('firebase/database');
