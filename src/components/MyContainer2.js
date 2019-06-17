@@ -91,12 +91,12 @@ setHabits = () => {
 		let newState = [];
 		for (let habit in habits) {
 			newState.push({
-				idkey: habit,
+				// idkey: habit,
 				// id: habits[habit].habitId,
 				habit: habits[habit].habitTitle,
 				points: habits[habit].habitPoints,
 				dates: habits[habit].dates,
-				percentage: habits[habit].percentage
+				// percentage: habits[habit].percentage
 			});
 		}
 		this.setState({
