@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import firebase from '../firebase.js'
-
-import { Container, Row, Col, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
+
 import TaskRow from './TaskRow.js';
 import Loader from './Loader.js';
 import InputHabitTitle from './InputHabitTitle.js';
+import HabitController from '../controllers/HabitController'
+
 
 
 const StyledCol = styled.div`
@@ -15,22 +17,11 @@ const StyledCol = styled.div`
 		user-select: none;
 	}
 
-	.task {
-		border: 1px solid #E0DCE2;
-		width: 25px;
-		height: 25px;
-		flex: 0 0 25px;
-		padding: 0;
-	}
-
 	.calendar {
 		cursor: default
 	}
 	.error {
 		border-color: red
-	}
-	.container__loading {
-
 	}
 	.row__subtitle {
 		width: 100%;
@@ -67,6 +58,8 @@ const StyledCol = styled.div`
 		display: block;
 		text-align: left;
 		color: red;
+		position: absolute;
+		bottom: 0
 	}
 `
 
@@ -79,18 +72,18 @@ class Mycontainer extends Component {
 			inputNewHabit: '',
 			error: false
 		}
+		this.setHabits();
 	}
 
 
-componentWillMount(){
-	this.setHabits()
+componentDidMount(){
 
 }
 
 setHabits = () => {
 	const habitRef = firebase.database().ref('habits');
 	habitRef.on('value', snapshot => {
-		this.setState({loading: false})
+		
 		let habits = snapshot.val();
 
 		let newState = [];
@@ -100,10 +93,12 @@ setHabits = () => {
 				habit: habits[habit].habitTitle,
 				points: habits[habit].habitPoints,
 				dates: habits[habit].dates,
+
 			});
 		}
 		this.setState({
-			habits: newState
+			habits: newState,
+			loading: false
 		})
 
 	});
@@ -143,7 +138,7 @@ renderHabitList = (habit, index, newhabits) => {
 		habitDates={habit.dates} 
 		points={habit.points} 
 		newid={habit.idkey} 
-		handleTask={this.handle}
+		// key={habit.idkey}
 		/>)
 };
 
@@ -161,8 +156,8 @@ render(){
 			<h2>Czerwiec</h2>
 
 			<Col md={6} style={{padding: '0 0 0 10px'}}>
-			{error && <small className="input__error">pole jest wymagane *</small>}
 			<InputHabitTitle error={error} handleChange={this.handleChangeOnInput} handleClick={this.addNewHabit}/>
+			{error && <small className="input__error">pole jest wymagane *</small>}
 			</Col>
 
 			</Row>

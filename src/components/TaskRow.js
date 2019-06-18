@@ -25,7 +25,7 @@ border-radius: 5px;
 	display: none
 }
 .task {
-	border: 1px solid #E0DCE2;
+	border: 1px solid #28a745;
 	width: 25px;
 	height: 25px;
 	flex: 0 0 25px;
@@ -82,27 +82,34 @@ border-radius: 5px;
 
 	}
 } //todo export it to another folder
+.habit__wrap {
+	min-width: 205px;
+	flex-wrap: wrap;
+	alignItems: center;
+	display: flex; 
+}
 `
 
 export default class TaskRow extends Component {
-	constructor(props){
+	constructor(props) {
 		super(props)
 		this.state = {
 			daysInMonth: [],
 			// currentMonth: '', // TODO set it to current month name
-			editingTask: false,
 			inputHabitTitle: this.props.title,
+			editingTask: false,
 			confirmed: false,
 			showModal: false,
 			errorInput: false,
-			percentage: 0
+			percentage: 0,
+			active: null
 		}
 		this.datesFirebaseRef = firebase.database().ref('habits/' + this.props.newid).child('dates');
 		this.idHabitFirebaseRef = firebase.database().ref('habits/' + this.props.newid);
-	}
+}
 
 
-	componentWillMount(){
+	componentWillMount() {
 		let daysInCurrentMonthArr = this.getFormatedDaysArray();
 		this.setState({
 			daysInMonth: daysInCurrentMonthArr,
@@ -115,7 +122,7 @@ export default class TaskRow extends Component {
 		let daysInMonthMoment = moment().daysInMonth(); // 30
 		let arrFormatDates = [];
 
-		while(daysInMonthMoment) {
+		while (daysInMonthMoment) {
 			let date = moment().date(daysInMonthMoment);
 			let formatDate = date.toISOString().split('T')[0];
 			arrFormatDates.push(formatDate);
@@ -130,184 +137,195 @@ export default class TaskRow extends Component {
 		let daysInMonthMoment = moment().daysInMonth();
 		let arrIsoDates = [];
 
-		while(daysInMonthMoment) {
+		while (daysInMonthMoment) {
 			let date = moment().date(daysInMonthMoment);
 			let formatDate = date.toISOString();
 			arrIsoDates.push(formatDate);
 			daysInMonthMoment--;
 		}
-		return arrIsoDates.reverse(); 
+		return arrIsoDates.reverse();
 	}
-	
-	handleClickOnTask = (e) => { // add/remove date for each task
-		e.preventDefault();
-		if(e.target.className === 'task taskDone col') {
-			this.subtractPoint()
-			this.removeDate(e)
 
-			e.target.className = 'task col';
-			// this.setPercentage()
-		} else if(e.target.className === 'task col') {
-			this.addPoint()
-			this.addDate(e)
-				// this.setPercentage()
-			e.target.className = 'task taskDone col'
+
+	handleClickOnTask = (number, active) => { // add/remove date for each task
+		// this.checkIfActive(number)
+		if (active) {
+			this.removeDate(number)
+			return;
 		}
+		this.addDate(number)
+
 	}
 
+	// checkIfActive = (number) => {
+	// 	this.datesFirebaseRef.orderByChild("pushDate").equalTo(number).once('value', snapshot => {
+	// 		if (snapshot.exists()) {
+	// 			console.log('exists')
+	// 			this.setState({active: true})
+	// 		}
+	// 		return this.setState({active: false})
+	// 	})
+	// }
 
 	// DATES
-	addDate = (e) => {
-		let pushDate = e.target.dataset.date;
-		var newPushedRef = this.datesFirebaseRef.push();
-		newPushedRef.set({pushDate});
-
-		this.setPercentage()
+	addDate = number => {
+		let pushDate = number;
+		let newPushedRef = this.datesFirebaseRef.push();
+		newPushedRef.set({ pushDate }).then(() =>
+			this.addPoint()
+		);
+	}
+	updateCurrentDate = (number) => {
+		console.log(this.props.currentDates)
+		var index = this.props.currentDates.indexOf(number);
+		if (index !== -1) 
+			this.props.currentDates.splice(index, 1);
+		console.log(this.props.currentDates)
 	}
 
-	removeDate = e => {
-		let removeDate = e.target.dataset.date;
-		let removeRefs = this.datesFirebaseRef.child(removeDate)
-		removeRefs.remove();
-		this.setPercentage()
-		// this.updatePercentage();
+
+	removeDate = number => {
+		let removeRefs = this.datesFirebaseRef.child(number)
+		removeRefs.remove().then(() => {
+			this.subtractPoint()
+		});
+		this.updateCurrentDate(number)
 	}
 
 	// POINTS
 	addPoint = () => {
-		if(this.props.points >= 0 && (this.props.points <= (this.state.daysInMonth.length - 1))){
-			this.idHabitFirebaseRef.update({habitPoints: this.props.points + 1});	
-		}	
+		if (this.props.points >= 0 && (this.props.points <= (this.state.daysInMonth.length - 1))) {
+			this.idHabitFirebaseRef.update({ habitPoints: this.props.points + 1 }).then(() => {
+				this.setPercentage()
+			});
+		}
 	}
 
 	subtractPoint = () => {
-		if(this.props.points === 0)
+		if (this.props.points === 0)
 			return;
-		this.idHabitFirebaseRef.update({habitPoints: this.props.points - 1});
-		// this.setPercentage()
+		this.idHabitFirebaseRef.update({ habitPoints: this.props.points - 1 }).then(() => {
+			this.setPercentage()
+		});
 	}
-
 
 	// PERCENTAGES
-	changeIntoPercentage = (part, total) =>{
-		return Math.ceil((100 * part) / total); 
+	changeIntoPercentage = (part, total) => {
+		console.log({ part, total });
+		return Math.ceil(100 * part / total);
 	}
 	setPercentage = () => {
-		let perc = this.changeIntoPercentage(this.props.points, moment().daysInMonth());
+		let percentage = this.changeIntoPercentage(this.props.points, moment().daysInMonth());
 		this.setState({
-			percentage: perc
+			percentage
 		})
 	}
-	editHabitTitle = (e) => {
-		if(this.state.editingTask){
-			this.setState({editingTask: false})
+
+	// HABIT TITLES
+	handleChange = e => {
+		this.setState({ inputHabitTitle: e.target.value });
+	}
+
+	editHabitTitle = e => {
+		if (this.state.editingTask) {
+			this.setState({ editingTask: false })
 		} else {
-			this.setState({editingTask: true})
+			this.setState({ editingTask: true })
 		}
 	}
 
-	saveHabitTitle = (e) => {
-		if(this.state.inputHabitTitle.length === 0){
-			this.setState({errorInput: true})
+	saveHabitTitle = e => {
+		if (this.state.inputHabitTitle.length === 0) {
+			this.setState({ errorInput: true })
 			return;
 		}
-		this.idHabitFirebaseRef.update({habitTitle: this.state.inputHabitTitle});
-		this.setState({editingTask: false, errorInput: false})
+		this.idHabitFirebaseRef.update({ habitTitle: this.state.inputHabitTitle });
+		this.setState({ editingTask: false, errorInput: false })
 	}
 
+	//REMOVING HABITS
 	deleteHabit = () => {
 		this.idHabitFirebaseRef.remove();
 	}
 
 	askToConfirmRemoval = () => {
-		this.setState({showModal: true})
+		this.setState({ showModal: true })
 	}
 
 	confirm = () => {
-		this.setState({confirmed: true, showModal: false})
+		this.setState({ confirmed: true, showModal: false })
 		this.deleteHabit()
 	}
+
 	handleCloseModal = () => {
-		this.setState({showModal: false})
-	}
-	handleChange = e => {
-		this.setState({ inputHabitTitle: e.target.value });
+		this.setState({ showModal: false })
 	}
 
 	render() {
-		const { daysInMonth, editingTask, inputHabitTitle, errorInput, showModal } = this.state;
+		const { daysInMonth, editingTask, inputHabitTitle, errorInput, showModal, percentage } = this.state;
 
 		return (
 			<StyledCol className="col-md-6 col-sm-12">
 
-			<div style={{textAlign: 'left', minHeight: '40px', marginBottom: '5px'}}>
-			<p style={{fontWeight: 'bold', marginBottom: '5px'}}>
+				<div style={{ textAlign: 'left', minHeight: '40px', marginBottom: '5px' }}>
+					<p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
 
-			{!editingTask && <span className="habit-title">{this.props.title}</span> }
-			{editingTask && 
-				<input type="text" 
-				className={errorInput ? 'input-title error' : 'input-title'}
-				ref={input => input && input.focus()} 
-				value={inputHabitTitle} 
-				onChange={this.handleChange} 
-				onKeyPress={e => {if(e.key === 'Enter'){ this.saveHabitTitle()}}} 
-				/> }
-				<span className="habit-btns"> 
-				{!editingTask 
-					? 
-					<Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button> 
-					:
-					<Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz"><i className="fas fa-check"></i></Button> 
-				}
-				<Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń"><i className="far fa-trash-alt" ></i></Button>
-				</span>
-				</p>
+						{!editingTask && <span className="habit-title">{this.props.title}</span>}
+						{editingTask &&
+							<input type="text"
+								className={errorInput ? 'input-title error' : 'input-title'}
+								ref={input => input && input.focus()}
+								value={inputHabitTitle}
+								onChange={this.handleChange}
+								onKeyPress={e => { if (e.key === 'Enter') { this.saveHabitTitle() } }}
+							/>}
+						<span className="habit-btns">
+							{!editingTask
+								?
+								<Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button>
+								:
+								<Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz"><i className="fas fa-check"></i></Button>
+							}
+							<Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń"><i className="far fa-trash-alt" ></i></Button>
+						</span>
+					</p>
 
-				<ConfirmationModal 
-					showmodal={showModal} 
-					handleConfirm={this.confirm} 
-					handleHide={this.handleHide}
-					handleCloseModal={this.handleCloseModal}
-				/>
+					<ConfirmationModal
+						showmodal={showModal}
+						handleConfirm={this.confirm}
+						handleHide={this.handleHide}
+						handleCloseModal={this.handleCloseModal}
+					/>
 
 				</div>
 				<Row>
-				<Col md={6} sm={12}>
+					<Col md={6} sm={12}>
 
-				<div style={{minWidth: '205px', flexWrap: 'wrap', alignItems: 'center', display: 'flex'}}>
-				{daysInMonth.map((number, index) => {
-					if(this.props.currentDates.includes(number)){
-						return <Col className='task taskDone' data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745 '}}>{index+1}</Col>
-					} else {
-						return <Col className='task' data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745 '}}>{index+1}</Col>
-					}
-				
+						<div className="habit__wrap">
+							{daysInMonth.map(
+								(number, index) => {
 
-			
+									// const active = this.props.currentDates.includes(number)
+									
+									
+									// const active = true
+									// const rowClass = active ? 'task taskDone' : 'task'
+									
+									return <Col className={this.state.active ? 'task taskDone' : 'task'} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={() => this.handleClickOnTask(number)}>{index + 1}</Col>
 
-					// <Col className={this.dates}
-					// if(this.props.dates.includes(number)){
-					// 	for(let date in this.props.oldDates){
-					// 		if(this.props.oldDates[date].pushDate === number)
-					// 			return <Col className="task taskDone" data-key={date} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745 '}}>{index+1}</Col>
-					// 	}
-					// } else {
-					// 	return <Col className="task" data-date={number} id={"task_" + this.props.id + "_" + number} key={number} onClick={this.handleClickOnTask} style={{border: '1px solid #28a745'}}>{index+1}</Col>
-					// }
-					// }
-				})
-			}
-			</div>
-			</Col>
+								}
+							)}
+						</div>
+					</Col>
 
-			<Col className="col__progress" md={6} sm={12}>
-			<p>Postęp:</p>
-			<ProgressPercentageChart percentage={this.state.percentage}/>
-			<p>{this.props.points}/30</p>
-			</Col>
-		</Row>
+					<Col className="col__progress" md={6} sm={12}>
+						<p>Postęp:</p>
+						<ProgressPercentageChart percentage={percentage} />
+						<p>{this.props.points}/30</p>
+					</Col>
+				</Row>
 
-		</StyledCol>
+			</StyledCol>
 		);
 	}
 }

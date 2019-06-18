@@ -2,9 +2,6 @@ import React from 'react';
 import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
 export default class InputHabitTitle extends React.Component {
-	constructor(props){
-		super(props)
-	}
 
 	render() {
 		return (
