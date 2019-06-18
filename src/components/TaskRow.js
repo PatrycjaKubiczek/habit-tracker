@@ -109,11 +109,12 @@ export default class TaskRow extends Component {
 }
 
 
-	componentWillMount() {
+	componentDidMount() {
 		let daysInCurrentMonthArr = this.getFormatedDaysArray();
 		this.setState({
 			daysInMonth: daysInCurrentMonthArr,
 		})
+		// this.checkIfActive()
 		this.setPercentage()
 	}
 
@@ -148,7 +149,7 @@ export default class TaskRow extends Component {
 
 
 	handleClickOnTask = (number, active) => { // add/remove date for each task
-		// this.checkIfActive(number)
+		this.checkIfActive(number)
 		if (active) {
 			this.removeDate(number)
 			return;
@@ -157,15 +158,17 @@ export default class TaskRow extends Component {
 
 	}
 
-	// checkIfActive = (number) => {
-	// 	this.datesFirebaseRef.orderByChild("pushDate").equalTo(number).once('value', snapshot => {
-	// 		if (snapshot.exists()) {
-	// 			console.log('exists')
-	// 			this.setState({active: true})
-	// 		}
-	// 		return this.setState({active: false})
-	// 	})
-	// }
+	checkIfActive = (number) => {
+		this.datesFirebaseRef.orderByChild("pushDate").equalTo(number).once('value', snapshot => {
+			let activeDate;
+			if (snapshot.exists()) {
+				console.log('exists')
+				activeDate = snapshot.val();
+				this.setState({active: activeDate})
+			}
+			// return activeDate
+		})
+	}
 
 	// DATES
 	addDate = number => {
@@ -175,13 +178,13 @@ export default class TaskRow extends Component {
 			this.addPoint()
 		);
 	}
-	updateCurrentDate = (number) => {
-		console.log(this.props.currentDates)
-		var index = this.props.currentDates.indexOf(number);
-		if (index !== -1) 
-			this.props.currentDates.splice(index, 1);
-		console.log(this.props.currentDates)
-	}
+	// updateCurrentDate = (number) => {
+	// 	console.log(this.props.currentDates)
+	// 	var index = this.props.currentDates.indexOf(number);
+	// 	if (index !== -1) 
+	// 		this.props.currentDates.splice(index, 1);
+	// 	console.log(this.props.currentDates)
+	// }
 
 
 	removeDate = number => {
@@ -306,12 +309,15 @@ export default class TaskRow extends Component {
 								(number, index) => {
 
 									// const active = this.props.currentDates.includes(number)
+									// let active = null;
+									// // this.checkIfActive(number)
+									// if(this.activeDate === number){
+									// 	active = true
+									// }
+									const active = true
+									const rowClass = active ? 'task taskDone' : 'task'
 									
-									
-									// const active = true
-									// const rowClass = active ? 'task taskDone' : 'task'
-									
-									return <Col className={this.state.active ? 'task taskDone' : 'task'} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={() => this.handleClickOnTask(number)}>{index + 1}</Col>
+									return <Col className={rowClass} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={() => this.handleClickOnTask(number)}>{index + 1}</Col>
 
 								}
 							)}

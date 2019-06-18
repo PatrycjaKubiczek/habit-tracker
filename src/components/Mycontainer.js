@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import firebase from '../firebase.js'
-import { Container, Row, Col } from 'react-bootstrap';
+import {Container,Row, Col} from 'react-bootstrap';
 import styled from 'styled-components';
 
 import TaskRow from './TaskRow.js';
@@ -10,7 +10,7 @@ import HabitController from '../controllers/HabitController'
 
 
 
-const StyledCol = styled.div`
+const StyledCol = styled.div `
 	.col {
 		margin: 2px;
 		cursor: pointer;
@@ -64,7 +64,7 @@ const StyledCol = styled.div`
 `
 
 class Mycontainer extends Component {
-	constructor(props){
+	constructor(props) {
 		super(props)
 		this.state = {
 			habits: [],
@@ -72,106 +72,145 @@ class Mycontainer extends Component {
 			inputNewHabit: '',
 			error: false
 		}
-		this.setHabits();
-	}
-
-
-componentDidMount(){
-
-}
-
-setHabits = () => {
-	const habitRef = firebase.database().ref('habits');
-	habitRef.on('value', snapshot => {
 		
-		let habits = snapshot.val();
+		this.timeout = null;
+	}
 
-		let newState = [];
-		for (let habit in habits) {
-			newState.push({
-				idkey: habit,
-				habit: habits[habit].habitTitle,
-				points: habits[habit].habitPoints,
-				dates: habits[habit].dates,
 
-			});
+	componentDidMount() {
+		this.setHabits();
+	
+	}
+	componentDidUpdate() {
+		// console.log(this.state.inputNewHabit)
+	}
+
+	setHabits = () => {
+		// return new Promise(function(resolve, reject){
+
+		// }
+			
+		const habitRef = firebase.database().ref('habits');
+		habitRef.once('value').then( snapshot => {
+
+			let habits = snapshot.val();
+
+			let newState = [];
+			for (let habit in habits) {
+				newState.push({
+					idkey: habit,
+					habit: habits[habit].habitTitle,
+					points: habits[habit].habitPoints,
+					dates: habits[habit].dates,
+
+				});
+			}
+			this.setState({
+				habits: newState,
+				loading: false
+			})
+			console.log(newState)
+		});
+	}
+
+
+
+	handleChangeOnInput = e => {
+		let inputText = e.target.value;
+		if (this.timeout)
+			clearTimeout(this.timeout);
+		this.timeout = setTimeout(() => {
+			this.setState({
+				inputNewHabit: inputText
+			})
+		}, 300);
+
+	}
+
+	// get value from input for creating new habit in database
+	addNewHabit = () => {
+		if (this.state.inputNewHabit.length === 0) {
+			this.setState({
+				error: true
+			})
+			return
 		}
+		const habitRef = firebase.database().ref('habits');
+		habitRef.push({
+			habitTitle: this.state.inputNewHabit,
+			habitPoints: 0,
+			dates: {},
+			percentage: 0
+		});
 		this.setState({
-			habits: newState,
-			loading: false
+			error: false
 		})
-
-	});
-}
-
-
-
-handleChangeOnInput = e => {
-	this.setState({ inputNewHabit: e.target.value });
-}
-
-// get value from input for creating new habit in database
-addNewHabit = () => {
-	if(this.state.inputNewHabit.length === 0){
-		this.setState({error: true})
-		return
 	}
-	const habitRef = firebase.database().ref('habits');
-	habitRef.push({
-		habitTitle: this.state.inputNewHabit,
-		habitPoints: 0,
-		dates: {},
-		percentage: 0
-	});
-	this.setState({error: false})
-}
 
-renderHabitList = (habit, index, newhabits) => {
-	let datesArr = [];
-	for (let date in habit.dates){
-		datesArr.push(habit.dates[date].pushDate)
-	}
-	return (<TaskRow 
-		habits={newhabits} 
-		title={habit.habit} 
-		currentDates={datesArr} 
-		habitDates={habit.dates} 
-		points={habit.points} 
-		newid={habit.idkey} 
-		// key={habit.idkey}
-		/>)
-};
+	renderHabitList = (habit, index, newhabits) => {
+			// let datesArr = [];
+			// for (let date in habit.dates) {
+			// 	datesArr.push(habit.dates[date].pushDate)
+			// }
+			return ( < TaskRow habits = {
+					newhabits
+				}
+				title = {
+					habit.habit
+				}
+				// currentDates = {
+				// 	datesArr
+				// }
+				habitDates = {
+					habit.dates
+				}
+				points = {
+					habit.points
+				}
+				newid = {
+					habit.idkey
+				}
+				key={habit.idkey}
+				/>)
+			};
 
 
-render(){
-	const { loading, error, habits } = this.state;
+			render() {
+				const {
+					loading,
+					error,
+					habits
+				} = this.state;
 
-	return (
-		<StyledCol>
-		{loading &&  <Loader />}
-		{!loading &&
-			<>
-			<Container className="container__app">
-			<Row className="row__subtitle">
-			<h2>Czerwiec</h2>
+				return ( <StyledCol > 
+					{loading && <Loader/>} 
+					{!loading && 
+						<>
+							<Container className = "container__app" >
+							<Row className = "row__subtitle" >
+							<h2> Czerwiec </h2>
 
-			<Col md={6} style={{padding: '0 0 0 10px'}}>
-			<InputHabitTitle error={error} handleChange={this.handleChangeOnInput} handleClick={this.addNewHabit}/>
-			{error && <small className="input__error">pole jest wymagane *</small>}
-			</Col>
+							<Col md = {6}style = {{padding: '0 0 0 10px'}}>
+							<InputHabitTitle error = {error}
+								handleChange = {this.handleChangeOnInput}
+								handleClick = {this.addNewHabit}
+							/> 
+							{error && < small className = "input__error" > pole jest wymagane * </small>} 
+							</Col>
 
-			</Row>
-			</Container>
+								</Row> </Container>
 
-			<Container className="container__habits">
-			{habits.map(this.renderHabitList)}
-			</Container>
-			</>
-		}
+								<Container className="container__habits"> 
+								{
+									habits.map(this.renderHabitList)
+								}
+								</Container> 
+								</>
+						}
 
-		</StyledCol>
-		);
-}
-}
+						</StyledCol>
+					);
+				}
+			}
 
-export default Mycontainer;
+			export default Mycontainer;
