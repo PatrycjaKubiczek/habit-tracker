@@ -1,16 +1,13 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import firebase from '../firebase.js'
-import {Container,Row, Col} from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 
-import TaskRow from './TaskRow.js';
+import TaskRow from './TaskRow2.js';
 import Loader from './Loader.js';
 import InputHabitTitle from './InputHabitTitle.js';
-import HabitController from '../controllers/HabitController'
 
-
-
-const StyledCol = styled.div `
+const StyledCol = styled.div`
 	.col {
 		margin: 2px;
 		cursor: pointer;
@@ -67,49 +64,44 @@ class Mycontainer extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			habits: [],
+			habits: null,
 			loading: true,
 			inputNewHabit: '',
 			error: false
 		}
-		
 		this.timeout = null;
 	}
 
-
+	componentWillMount(){
+		// console.log('component will mount')
+	}
 	componentDidMount() {
+		// console.log('component did mount')
 		this.setHabits();
-	
 	}
 	componentDidUpdate() {
-		// console.log(this.state.inputNewHabit)
+		// console.log('component did update')
 	}
 
 	setHabits = () => {
-		// return new Promise(function(resolve, reject){
 
-		// }
-			
 		const habitRef = firebase.database().ref('habits');
-		habitRef.once('value').then( snapshot => {
-
-			let habits = snapshot.val();
-
+		habitRef.on('value', snapshot => {
+			let habits = snapshot.val(); // mt
+			
 			let newState = [];
 			for (let habit in habits) {
 				newState.push({
 					idkey: habit,
-					habit: habits[habit].habitTitle,
+					title: habits[habit].habitTitle,
 					points: habits[habit].habitPoints,
 					dates: habits[habit].dates,
-
 				});
 			}
 			this.setState({
 				habits: newState,
 				loading: false
-			})
-			console.log(newState)
+			})			
 		});
 	}
 
@@ -147,70 +139,63 @@ class Mycontainer extends Component {
 		})
 	}
 
-	renderHabitList = (habit, index, newhabits) => {
-			// let datesArr = [];
-			// for (let date in habit.dates) {
-			// 	datesArr.push(habit.dates[date].pushDate)
-			// }
-			return ( < TaskRow habits = {
-					newhabits
-				}
-				title = {
-					habit.habit
-				}
-				// currentDates = {
-				// 	datesArr
-				// }
-				habitDates = {
-					habit.dates
-				}
-				points = {
-					habit.points
-				}
-				newid = {
-					habit.idkey
-				}
-				key={habit.idkey}
-				/>)
-			};
+	// renderHabitList = (habit, index, newhabits) => {
+	// 	let datesArr = [];
+	// 	for (let date in habit.dates) {
+	// 		datesArr.push(habit.dates[date].pushDate)
+	// 	}
+	// 	return (<TaskRow
+	// 		habits={newhabits}
+	// 		title={habit.habit}
+	// 		currentDates={datesArr}
+	// 		habitDates={habit.dates}
+	// 		points={habit.points}
+	// 		newid={habit.idkey}
+	// 		key={habit.idkey}
+	// 	/>)
+	// };
 
 
-			render() {
-				const {
-					loading,
-					error,
-					habits
-				} = this.state;
+	render() {
+		const {
+			loading,
+			error,
+			habits
+		} = this.state;
+		
+		// {!loading && <Loader />}
 
-				return ( <StyledCol > 
-					{loading && <Loader/>} 
-					{!loading && 
-						<>
-							<Container className = "container__app" >
-							<Row className = "row__subtitle" >
+		// if(!habits)
+		// 	return null;
+		
+		return (
+		<StyledCol >
+			{loading && <Loader />}
+			{!loading &&
+				<>
+					<Container className="container__app">
+						<Row className="row__subtitle">
 							<h2> Czerwiec </h2>
-
-							<Col md = {6}style = {{padding: '0 0 0 10px'}}>
-							<InputHabitTitle error = {error}
-								handleChange = {this.handleChangeOnInput}
-								handleClick = {this.addNewHabit}
-							/> 
-							{error && < small className = "input__error" > pole jest wymagane * </small>} 
+							<Col md={6} style={{ padding: '0 0 0 10px'}}>
+								<InputHabitTitle error={error}
+									handleChange={this.handleChangeOnInput}
+									handleClick={this.addNewHabit}
+								/>
+								{error && <small className="input__error"> pole jest wymagane * </small>}
 							</Col>
+						</Row>
+					</Container>
 
-								</Row> </Container>
-
-								<Container className="container__habits"> 
-								{
-									habits.map(this.renderHabitList)
-								}
-								</Container> 
-								</>
+					<Container className="container__habits">
+						{
+							habits.map((habit) => <TaskRow habit={habit} key={habit.idkey}/> )
 						}
-
-						</StyledCol>
-					);
-				}
+					</Container>
+				</>
 			}
+		</StyledCol>
+		);
+	}
+}
 
-			export default Mycontainer;
+export default Mycontainer;

@@ -8,7 +8,7 @@ export default class InputHabitTitle extends React.Component {
 			<InputGroup className="mb-3">
 			<FormControl ref="taskInput"
 			placeholder="wpisz nazwę..."
-			aria-label="wpisz nazwę..."
+			aria-label="nazwa"
 			aria-describedby="basic-addon2"
 			onChange={this.props.handleChange}
 			style={{boxShadow: 'none'}}

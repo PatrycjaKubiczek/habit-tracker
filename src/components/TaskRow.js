@@ -88,6 +88,11 @@ border-radius: 5px;
 	alignItems: center;
 	display: flex; 
 }
+.title__wrap {
+	text-align: left;
+	min-height: 40px;
+	margin-bottom: 5px;
+}
 `
 
 export default class TaskRow extends Component {
@@ -270,7 +275,7 @@ export default class TaskRow extends Component {
 		return (
 			<StyledCol className="col-md-6 col-sm-12">
 
-				<div style={{ textAlign: 'left', minHeight: '40px', marginBottom: '5px' }}>
+				<div className="title__wrap">
 					<p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
 
 						{!editingTask && <span className="habit-title">{this.props.title}</span>}
@@ -281,7 +286,8 @@ export default class TaskRow extends Component {
 								value={inputHabitTitle}
 								onChange={this.handleChange}
 								onKeyPress={e => { if (e.key === 'Enter') { this.saveHabitTitle() } }}
-							/>}
+							/>
+						}
 						<span className="habit-btns">
 							{!editingTask
 								?
@@ -308,13 +314,13 @@ export default class TaskRow extends Component {
 							{daysInMonth.map(
 								(number, index) => {
 
-									// const active = this.props.currentDates.includes(number)
+									const active = this.props.currentDates.includes(number)
 									// let active = null;
 									// // this.checkIfActive(number)
 									// if(this.activeDate === number){
 									// 	active = true
 									// }
-									const active = true
+									// const active = true
 									const rowClass = active ? 'task taskDone' : 'task'
 									
 									return <Col className={rowClass} data-date={number} newid={"task_" + this.props.newid + "_" + number} key={number} onClick={() => this.handleClickOnTask(number)}>{index + 1}</Col>

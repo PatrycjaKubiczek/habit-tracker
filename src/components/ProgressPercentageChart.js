@@ -17,7 +17,6 @@ export default class ProgressPercentageChart extends React.Component {
 			lineWidth={20}
 			startAngle={270}
 			rounded
-			// animate
 			label={({ data, dataIndex }) =>
 			Math.round(data[dataIndex].percentage) + '%'
 		}
