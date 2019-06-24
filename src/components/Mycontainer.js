@@ -10,6 +10,7 @@ import TaskRow from './TaskRow2.js';
 import Loader from './Loader.js';
 import InputHabitTitle from './InputHabitTitle.js';
 import ToastHabit from './ToastHabit.js';
+import Stats from './Stats.js';
 
 const StyledCol = styled.div`
 	.col {
@@ -57,6 +58,21 @@ const StyledCol = styled.div`
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+	}
+	.container__stats{
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		padding: 20px;
+		max-width: 900px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 5px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 2px rgba(0,0,0,.03);
 	}
 	.input__error {
 		display: block;
@@ -150,7 +166,6 @@ class Mycontainer extends Component {
 			habitTitle: this.state.inputNewHabit,
 			habitPoints: 0,
 			dates: {},
-			percentage: 0
 		}).then(
 			this.setState({
 				showToast: true
@@ -206,7 +221,7 @@ class Mycontainer extends Component {
 		
 		return (
 		<StyledCol>
-			<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast}/>
+			{/* {showToast && <ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast}/>} */}
 			{loading && <Loader />}
 			{!loading &&
 				<>
@@ -226,12 +241,24 @@ class Mycontainer extends Component {
 							</Col>
 						</Row>
 					</Container>
-
 					<Container className="container__habits">
 						{
 							habits.map((habit) => <TaskRow habit={habit} key={habit.idkey}/> )
 						}
+						
 					</Container>
+					<Container className="container__app" style={{flexDirection: 'column'}}>
+					<h2 className="mt-5 text-left">Statystki</h2>
+					<Container className="container__stats mb-5">
+						
+					{
+							habits.map((habit) => <Stats habit={habit} key={habit.idkey}/> )
+						}
+					</Container>
+					</Container>
+
+					
+					
 				</>
 			}
 		</StyledCol>
