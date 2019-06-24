@@ -4,7 +4,7 @@ export default class ConfirmationModal extends React.Component {
 
 	render() {
 		return (
-			<Modal show={this.props.showmodal} onHide={this.props.handleCloseModal}>
+			<Modal style={{overflowY: 'auto'}}show={this.props.showmodal} onHide={this.props.handleCloseModal}>
 			<Modal.Header closeButton>
 			<Modal.Title>Potwierdź usunięcie</Modal.Title>
 			</Modal.Header>

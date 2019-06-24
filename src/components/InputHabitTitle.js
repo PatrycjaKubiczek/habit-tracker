@@ -5,6 +5,7 @@ export default class InputHabitTitle extends React.Component {
 
 	render() {
 		return (
+			
 			<InputGroup className="mb-3">
 			<FormControl ref="taskInput"
 			placeholder="wpisz nazwę..."
@@ -13,6 +14,7 @@ export default class InputHabitTitle extends React.Component {
 			onChange={this.props.handleChange}
 			style={{boxShadow: 'none'}}
 			className={this.props.error ? 'error' : ''}
+			value={this.props.inputHabit}
 			/>
 			
 			<InputGroup.Append>

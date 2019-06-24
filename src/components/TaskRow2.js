@@ -7,11 +7,6 @@ import ProgressPercentageChart from './ProgressPercentageChart.js';
 import ConfirmationModal from './ConfirmationModal.js';
 import find from 'lodash/find';
 
-import {
-    CSSTransition,
-    TransitionGroup,
-  } from 'react-transition-group';
-
 // import TaskCol from './TaskCol.js'
 
 const StyledCol = styled.div`
@@ -305,7 +300,6 @@ export default class TaskRow extends Component {
                 </div>
                 <Row>
                     <Col md={7} sm={12}>
-
                         <div className="habit__wrap">
                             {daysInMonth.map(
                                 (date, index) => {

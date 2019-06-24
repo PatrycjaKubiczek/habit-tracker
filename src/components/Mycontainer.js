@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import firebase from '../firebase.js'
 import { Container, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
+import moment from 'moment'
+import localization from 'moment/locale/pl'
+
 
 import TaskRow from './TaskRow2.js';
 import Loader from './Loader.js';
 import InputHabitTitle from './InputHabitTitle.js';
+import ToastHabit from './ToastHabit.js';
 
 const StyledCol = styled.div`
 	.col {
@@ -30,6 +34,9 @@ const StyledCol = styled.div`
 			.col-md-6 {
 				padding: 0 !important;
 			}
+		}
+		h2 {
+			text-transform: capitalize;
 		}
 	}
 	.container__loading {
@@ -67,7 +74,10 @@ class Mycontainer extends Component {
 			habits: null,
 			loading: true,
 			inputNewHabit: '',
-			error: false
+			error: false,
+			currentMonth: '',
+			disableBtn: false,
+			showToast: false
 		}
 		this.timeout = null;
 	}
@@ -78,6 +88,7 @@ class Mycontainer extends Component {
 	componentDidMount() {
 		// console.log('component did mount')
 		this.setHabits();
+		this.setCurrentMonth()
 	}
 	componentDidUpdate() {
 		// console.log('component did update')
@@ -104,38 +115,61 @@ class Mycontainer extends Component {
 			})			
 		});
 	}
-
-
+	setCurrentMonth(){
+		// moment.locale('pl');
+		let currentMonthMoment = moment().format("MMMM");
+		this.setState({
+			currentMonth: currentMonthMoment
+		})
+	}
 
 	handleChangeOnInput = e => {
 		let inputText = e.target.value;
-		if (this.timeout)
-			clearTimeout(this.timeout);
-		this.timeout = setTimeout(() => {
+		// if (this.timeout)
+		// 	clearTimeout(this.timeout);
+		// this.timeout = setTimeout(() => {
 			this.setState({
-				inputNewHabit: inputText
+				inputNewHabit: inputText,
+				error: false
 			})
-		}, 300);
-
+			
+		// }, 300);
 	}
 
 	// get value from input for creating new habit in database
-	addNewHabit = () => {
+	addNewHabit = (e) => {
+		// this.setState({disableBtn : true});
 		if (this.state.inputNewHabit.length === 0) {
 			this.setState({
 				error: true
 			})
 			return
 		}
-		const habitRef = firebase.database().ref('habits');
-		habitRef.push({
+		// const habitRef = firebase.database().ref('habits');
+		firebase.database().ref('habits').push({
 			habitTitle: this.state.inputNewHabit,
 			habitPoints: 0,
 			dates: {},
 			percentage: 0
-		});
+		}).then(
+			this.setState({
+				showToast: true
+			})
+			// this.setState({
+			// 	error: false,
+			// 	inputNewHabit: ''	
+			// })
+		);
 		this.setState({
-			error: false
+			error: false,
+			inputNewHabit: ''	
+		})
+		// e.target.reset();
+
+	}
+	handleCloseToast = () =>{
+		this.setState({
+			showToast: false
 		})
 	}
 
@@ -160,28 +194,35 @@ class Mycontainer extends Component {
 		const {
 			loading,
 			error,
-			habits
+			habits,
+			currentMonth,
+			disableBtn,
+			inputNewHabit,
+			showToast
 		} = this.state;
-		
-		// {!loading && <Loader />}
 
 		// if(!habits)
 		// 	return null;
 		
 		return (
-		<StyledCol >
+		<StyledCol>
+			<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast}/>
 			{loading && <Loader />}
 			{!loading &&
 				<>
 					<Container className="container__app">
 						<Row className="row__subtitle">
-							<h2> Czerwiec </h2>
+							<h2> {currentMonth} </h2>
 							<Col md={6} style={{ padding: '0 0 0 10px'}}>
-								<InputHabitTitle error={error}
+								<InputHabitTitle 
+									error={error}
 									handleChange={this.handleChangeOnInput}
 									handleClick={this.addNewHabit}
+									className={disableBtn ? 'disabled' : null}
+									inputHabit={inputNewHabit}
+									// handleKeypress={ this.addNewHabit}
 								/>
-								{error && <small className="input__error"> pole jest wymagane * </small>}
+								{error && <small className="input__error">* pole jest wymagane </small>}
 							</Col>
 						</Row>
 					</Container>
