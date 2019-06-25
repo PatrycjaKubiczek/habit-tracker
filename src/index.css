@@ -8,6 +8,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #eee !important;
+}
+
+
+html {
+  height: 100%;
+}
+body {
+  min-height: 100%;
 }
 
 code {

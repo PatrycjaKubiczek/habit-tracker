@@ -36,3 +36,11 @@ main {
     transform: rotate(360deg);
   }
 }
+
+.progress {
+  min-height: 25px;
+}
+
+.progress-bar{
+  color: #222 !important;
+}
