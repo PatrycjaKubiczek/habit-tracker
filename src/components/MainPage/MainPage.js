@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import firebase from '../firebase.js'
+import firebase from './../../firebase.js'
 import styled from 'styled-components';
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from 'react-bootstrap';
 
 import Loader from './Loader.js';
-import HabitsPage from './HabitsPage.js';
-import StatsPage from './StatsPage.js';
-import SignIn from './SignIn.js';
+import HabitsPage from './HabitsPage/HabitsPage.js';
+import StatsPage from './StatsPage/StatsPage.js';
 const StyledCol = styled.div`
 	.col {
 		margin: 2px;
@@ -77,7 +76,7 @@ const StyledCol = styled.div`
 `
 
 
-class Mycontainer extends Component {
+class MainPage extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -135,14 +134,12 @@ class Mycontainer extends Component {
 								<Nav className="ml-auto">
 									<Link className="nav-link" to={process.env.PUBLIC_URL + '/'}>Nawyki</Link>
 									<Link className="nav-link" to={process.env.PUBLIC_URL + '/stats'}>Statystyki</Link>
-									<a onClick={() => firebase.auth().signOut()}>Wyloguj</a>
 								</Nav>
 							</Container>
 						</Navbar>
 
-						<Route path={'/signedin'} exact render={() => <SignIn />} />
-						<Route path={'/'} exact render={() => <HabitsPage habits={habits} />} />
-						<Route path={'/stats'} render={() => <StatsPage habits={habits} />} />
+						<Route path={process.env.PUBLIC_URL + '/'} exact render={() => <HabitsPage habits={habits} />} />
+						<Route path={process.env.PUBLIC_URL +  '/stats'} render={() => <StatsPage habits={habits} />} />
 
 					</Router>
 				}
@@ -151,4 +148,4 @@ class Mycontainer extends Component {
 	}
 }
 
-export default Mycontainer;
+export default MainPage;

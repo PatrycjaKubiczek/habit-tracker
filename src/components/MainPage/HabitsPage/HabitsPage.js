@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import firebase from '../firebase.js'
+import firebase from '../../../firebase.js'
 import { Container, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
 import moment from 'moment'
 import localization from 'moment/locale/pl'
 
-import TaskRow from './TaskRow2.js';
+import HabitList from './HabitList/HabitList.js';
 import InputHabitTitle from './InputHabitTitle.js';
 import ToastHabit from './ToastHabit.js';
 
@@ -174,7 +174,7 @@ class HabitsPage extends Component {
 
             <Container className="container__habits">
                 {
-                    this.props.habits.map((habit) => <TaskRow habit={habit} key={habit.idkey} />)
+                    this.props.habits.map((habit) => <HabitList habit={habit} key={habit.idkey} />)
                 }
 
             </Container>
