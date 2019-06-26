@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import firebase from './../../firebase.js'
+import firebase from '../../firebase.js'
 import styled from 'styled-components';
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from 'react-bootstrap';
 
 import Loader from './Loader.js';
 import HabitsPage from './HabitsPage/HabitsPage.js';
-import StatsPage from './StatsPage/StatsPage.js';
+import StatsPage from './StatsPage/StatsPage.js'
 const StyledCol = styled.div`
 	.col {
 		margin: 2px;
@@ -132,14 +132,14 @@ class MainPage extends Component {
 							<Container className="container__app ">
 								<Navbar.Brand href={process.env.PUBLIC_URL + '/'}>Habit tracker</Navbar.Brand>
 								<Nav className="ml-auto">
-									<Link className="nav-link" to={process.env.PUBLIC_URL + '/'}>Nawyki</Link>
-									<Link className="nav-link" to={process.env.PUBLIC_URL + '/stats'}>Statystyki</Link>
+									<Link className="nav-link" to={'/'}>Nawyki</Link>
+									<Link className="nav-link" to={'/stats'}>Statystyki</Link>
 								</Nav>
 							</Container>
 						</Navbar>
 
-						<Route path={process.env.PUBLIC_URL + '/'} exact render={() => <HabitsPage habits={habits} />} />
-						<Route path={process.env.PUBLIC_URL +  '/stats'} render={() => <StatsPage habits={habits} />} />
+						<Route path={'/'} exact render={() => <HabitsPage habits={habits} />} />
+						<Route path={'/stats'} render={() => <StatsPage habits={habits} />} />
 
 					</Router>
 				}

@@ -1,81 +1,12 @@
 import React, { Component } from 'react';
 import firebase from '../../../firebase.js'
 import { Container, Row, Col } from 'react-bootstrap';
-import styled from 'styled-components';
 import moment from 'moment'
-import localization from 'moment/locale/pl'
 
 import HabitList from './HabitList/HabitList.js';
 import InputHabitTitle from './InputHabitTitle.js';
 import ToastHabit from './ToastHabit.js';
 
-const StyledCol = styled.div`
-	.col {
-		margin: 2px;
-		cursor: pointer;
-		user-select: none;
-	}
-
-	.calendar {
-		cursor: default
-	}
-	.error {
-		border-color: red
-	}
-	.row__subtitle {
-		width: 100%;
-		padding: 20px 0;
-		margin: 20px 0 0 0;
-		justify-content: space-between;
-		@media screen and (max-width: 769px){
-			justify-content: center
-			.col-md-6 {
-				padding: 0 !important;
-			}
-		}
-		h2 {
-			text-transform: capitalize;
-		}
-	}
-	.container__loading {
-		display: flex;
-		justify-content: center; 
-		align-items: center; 
-		flex-direction: column;
-		height: 90vh;
-	}
-	.container__app {
-		max-width: 900px;
-		display: flex;
-		justify-content: space-between;
-		padding: 5px;
-	}
-	.container__habits {
-		max-width: 900px;
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-	}
-	.container__stats{
-		display: flex;
-		justify-content: center;
-		flex-direction: column;
-		padding: 20px;
-		max-width: 900px;
-		border: 1px solid #ddd;
-		background: #fff;
-		border-radius: 5px;
-		user-select: none;
-		box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 2px rgba(0,0,0,.03);
-	}
-	.input__error {
-		display: block;
-		text-align: left;
-		color: red;
-		position: absolute;
-		bottom: 0
-	}
-`
 class HabitsPage extends Component {
     constructor(props) {
 		super(props)
@@ -114,7 +45,6 @@ class HabitsPage extends Component {
 
 	// get value from input for creating new habit in database
 	addNewHabit = (e) => {
-		// this.setState({disableBtn : true});
 		if (this.state.inputNewHabit.length === 0) {
 			this.setState({
 				error: true
@@ -165,7 +95,6 @@ class HabitsPage extends Component {
                             handleClick={this.addNewHabit}
                             className={disableBtn ? 'disabled' : null}
                             inputHabit={inputNewHabit}
-                        // handleKeypress={ this.addNewHabit}
                         />
                         {error && <small className="input__error">* pole jest wymagane </small>}
                     </Col>
