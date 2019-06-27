@@ -3,12 +3,13 @@ import { Row, Col, Button } from 'react-bootstrap';
 import firebase from '../../../../firebase.js'
 import moment from 'moment';
 import ProgressPercentageChart from '../ProgressPercentageChart.js';
-import ConfirmationModal from '../ConfirmationModal.js';
 import find from 'lodash/find';
 
-// import TaskCol from './TaskCol.js'
+// COMPONENTS
+import ConfirmationModal from '../ConfirmationModal.js';
 
-import { StyledCol } from './HabitListStyle.js';
+// STYLES
+import { StyledCol, ColProgress, BtnsHabit, WrapHabit,WrapTitleHabit, TitleHabit, HabitDate } from './HabitListStyle.js';
 
 
 export default class HabitList extends Component {
@@ -22,12 +23,10 @@ export default class HabitList extends Component {
             showModal: false,
             errorInput: false,
             percentage: 0,
-            // active: null
         }
         const { idkey } = this.props.habit;
         this.datesFirebaseRef = firebase.database().ref('habits/' + idkey).child('dates');
         this.idHabitFirebaseRef = firebase.database().ref('habits/' + idkey);
-        // const { habit } = this.props
     }
 
 
@@ -173,10 +172,9 @@ export default class HabitList extends Component {
         return (
             <StyledCol className="col-md-6 col-sm-12">
 
-                <div className="title__wrap">
-                    <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-
-                        {!editingTask && <span className="habit-title">{habit.title}</span>}
+                <WrapTitleHabit>
+                   
+                        {!editingTask && <TitleHabit>{habit.title}</TitleHabit>}
                         {editingTask &&
                             <input type="text"
                                 className={errorInput ? 'input-title error' : 'input-title'}
@@ -186,16 +184,16 @@ export default class HabitList extends Component {
                                 onKeyPress={e => { if (e.key === 'Enter') { this.saveHabitTitle() } }}
                             />
                         }
-                        <span className="habit-btns">
+                        <BtnsHabit>
                             {!editingTask
                                 ?
                                 <Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button>
                                 :
-                                <Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz"><i className="fas fa-check"></i></Button>
+                                <Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz tytuł"><i className="fas fa-check"></i></Button>
                             }
-                            <Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń"><i className="far fa-trash-alt" ></i></Button>
-                        </span>
-                    </p>
+                            <Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń nawyk"><i className="far fa-trash-alt" ></i></Button>
+                        </BtnsHabit>
+        
 
                     <ConfirmationModal
                         showmodal={showModal}
@@ -204,28 +202,28 @@ export default class HabitList extends Component {
                         handleCloseModal={this.handleCloseModal}
                     />
 
-                </div>
+                </WrapTitleHabit>
                 <Row>
                     <Col md={7} sm={12}>
-                        <div className="habit__wrap">
+                        <WrapHabit>
                             {daysInMonth.map(
                                 (date, index) => {
                                    
                                     const active = this.checkIfActive(date)
                                     const rowClass = active ? 'task taskDone' : 'task'
                                     
-                                    return <Col key={date} className={rowClass} data-date={date} onClick={() => this.handleClickOnTask(date, active)}>{index + 1}</Col>
+                                    return <HabitDate key={date} className={rowClass} data-date={date} onClick={() => this.handleClickOnTask(date, active)}>{index + 1}</HabitDate>
 
                                 }
                             )}
-                        </div>
+                        </WrapHabit>
                     </Col>
 
-                    <Col className="col__progress" md={5} sm={12}>
+                    <ColProgress md={5} sm={12}>
                         <p className="mb-0">Postęp:</p>
                         <ProgressPercentageChart percentage={percentage} />
                         <p>{habit.points}/30</p>
-                    </Col>
+                    </ColProgress>
                 </Row>
 
             </StyledCol>

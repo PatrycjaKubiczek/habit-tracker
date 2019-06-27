@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Col } from 'react-bootstrap';
 
 export const StyledCol = styled.div`
 padding: 20px;
@@ -11,12 +12,6 @@ box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 
 
 @media screen and (max-width: 769px){
 	margin: 10px
-}
-.col {
-	margin: 2px;
-	cursor: pointer;
-    user-select: none;
-    line-height: 30px;
 }
 .fa {
 	display: none
@@ -50,15 +45,6 @@ box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 
 		background: #28a745;
 	}
 }
-.habit-title {
-	display: inline-block;
-	max-width: 80%;
-	border: 2px solid transparent;
-}
-.habit-btns {
-	float: right;
-	color: #ddd;
-}
 .input-title {
 	margin-left: -7px;
 	padding-left: 8px;
@@ -71,26 +57,59 @@ box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 
 
 	}
 }
-.col__progress {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	@media screen and (max-width: 769px){
-		margin-top: 20px
+`
 
-	}
+export const ColProgress = styled(Col)`
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+@media screen and (max-width: 769px){
+	margin-top: 20px
+
 }
-.habit__wrap {
-	min-width: 245px;
-	flex-wrap: wrap;
-	alignItems: center;
-	display: flex; 
-}
-.title__wrap {
-	text-align: left;
-    min-height: 40px;
-    border-bottom: 1px solid #ddd;
-	margin-bottom: 15px;
+`
+
+export const BtnsHabit = styled.span`
+float: right;
+color: #ddd;
+`
+export const WrapTitleHabit = styled.div`
+text-align: left;
+min-height: 40px;
+border-bottom: 1px solid #ddd;
+margin-bottom: 15px;
+`
+export const TitleHabit = styled.span`
+display: inline-block;
+max-width: 80%;
+border: 2px solid transparent;
+font-weight: bold;
+margin-bottom: 5px;
+`
+
+export const WrapHabit = styled.div`
+min-width: 245px;
+flex-wrap: wrap;
+alignItems: center;
+display: flex; 
+`
+
+export const HabitDate = styled(Col)`
+border-radius: 5px;
+background: #eee;
+// border: 1px solid #28a745;
+width: 30px;
+height: 30px;
+flex: 0 0 30px;
+padding: 0;
+transition: background ease-in-out .09s;
+margin: 2px;
+cursor: pointer;
+user-select: none;
+line-height: 30px;
+&:hover {
+	background: rgb(40, 167, 69, .5);
+	color: #000;
 }
 `

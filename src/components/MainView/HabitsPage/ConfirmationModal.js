@@ -1,5 +1,7 @@
 import React from 'react';
 import { Button, Modal } from 'react-bootstrap';
+
+
 export default class ConfirmationModal extends React.Component {
 
 	render() {

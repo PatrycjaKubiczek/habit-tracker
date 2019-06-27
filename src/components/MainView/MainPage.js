@@ -1,80 +1,15 @@
 import React, { Component } from 'react';
-import firebase from '../../firebase.js'
-import styled from 'styled-components';
 import { HashRouter as Router, Route, Link } from "react-router-dom";
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import firebase from '../../firebase.js'
+import { Navbar, Nav } from 'react-bootstrap';
 
-import Loader from './Loader.js';
+// COMPONENTS
+import Loader from './Loader/Loader.js';
 import HabitsPage from './HabitsPage/HabitsPage.js';
+
+// STYLES
 import StatsPage from './StatsPage/StatsPage.js'
-const StyledCol = styled.div`
-	.col {
-		margin: 2px;
-		cursor: pointer;
-		user-select: none;
-	}
-
-	.calendar {
-		cursor: default
-	}
-	.error {
-		border-color: red
-	}
-	.row__subtitle {
-		width: 100%;
-		padding: 20px 0;
-		margin: 20px 0 0 0;
-		justify-content: space-between;
-		@media screen and (max-width: 769px){
-			justify-content: center
-			.col-md-6 {
-				padding: 0 !important;
-			}
-		}
-		h2 {
-			text-transform: capitalize;
-		}
-	}
-	.container__loading {
-		display: flex;
-		justify-content: center; 
-		align-items: center; 
-		flex-direction: column;
-		height: 90vh;
-	}
-	.container__app {
-		max-width: 900px;
-		display: flex;
-		justify-content: space-between;
-		padding: 5px;
-	}
-	.container__habits {
-		max-width: 900px;
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-	}
-	.container__stats{
-		display: flex;
-		justify-content: center;
-		flex-direction: column;
-		padding: 20px;
-		max-width: 900px;
-		border: 1px solid #ddd;
-		background: #fff;
-		border-radius: 5px;
-		user-select: none;
-		box-shadow: 0px 2px 3px rgba(0,0,0,.03), 1px 2px 2px rgba(0,0,0,.03), -1px -2px 2px rgba(0,0,0,.03);
-	}
-	.input__error {
-		display: block;
-		text-align: left;
-		color: red;
-		position: absolute;
-		bottom: 0
-	}
-`
-
+import { ContainerApp } from './MainPageStyle.js'
 
 class MainPage extends Component {
 	constructor(props) {
@@ -119,23 +54,19 @@ class MainPage extends Component {
 			habits,
 		} = this.state;
 
-		// if(!habits)
-		// 	return null;
-
 		return (
-			<StyledCol>
-
+			<>
 				{loading && <Loader />}
 				{!loading &&
 					<Router>
 						<Navbar style={{ backgroundColor: '#373f51' }} variant="dark">
-							<Container className="container__app ">
+							<ContainerApp>
 								<Navbar.Brand href={process.env.PUBLIC_URL + '/'}>Habit tracker</Navbar.Brand>
 								<Nav className="ml-auto">
 									<Link className="nav-link" to={'/'}>Nawyki</Link>
 									<Link className="nav-link" to={'/stats'}>Statystyki</Link>
 								</Nav>
-							</Container>
+							</ContainerApp>
 						</Navbar>
 
 						<Route path={'/'} exact render={() => <HabitsPage habits={habits} />} />
@@ -143,7 +74,7 @@ class MainPage extends Component {
 
 					</Router>
 				}
-			</StyledCol>
+			</>
 		);
 	}
 }
