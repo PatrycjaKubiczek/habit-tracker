@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 // COMPONENTS
 import Stats from './Stats.js';
 
@@ -13,11 +12,11 @@ class StatsPage extends Component {
         return (
             <ContainerApp style={{flexDirection: 'column'}}>
                 <RowSubtitle>
-                    <h2 className="text-left">Statystki</h2>
+                    <h2 className="text-left">Statystyki  - {this.props.currentMonthDate}</h2>
                 </RowSubtitle>
                 <ContainerStats>
                     {
-                        this.props.habits.map((habit) => <Stats habit={habit} key={habit.idkey} />)
+                        this.props.habits.map((habit) => <Stats habit={habit} key={habit.idkey} currentMonthDate={this.props.currentMonthDate} />)
                     }
                 </ContainerStats>
             </ContainerApp>

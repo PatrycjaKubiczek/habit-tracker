@@ -1,16 +1,49 @@
 import React from 'react';
 import { ProgressBar } from 'react-bootstrap';
+import firebase from './../../../firebase.js'
+import moment from 'moment';
 
 export default class Stats extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            now: this.changeIntoPercentage()
+            points: 0,
+            total: 0,
+            now: 0
         }
     }
     changeIntoPercentage = (part, total) => {
-        return Math.ceil(100 * this.props.habit.points / 30);
+        return Math.ceil(100 * part / total);
+    }
+    setPoints= () => {
+        let daysInMonthMoment = moment().daysInMonth();
+        let pushDate = firebase.database().ref('habits/' + this.props.habit.idkey).child('dates').orderByChild('pushDate').startAt(this.props.currentMonthDate);
+
+        pushDate.once('value', snapshot => {
+            let dates = snapshot.val()
+
+            let currentDates = [];
+            for (let date in dates) {
+                currentDates.push(date);
+            }
+            let points = currentDates.length
+            this.setState({
+                points: points,
+                total: daysInMonthMoment 
+            })
+        
+
+        }).then(() => {
+           let perc = this.changeIntoPercentage(this.state.points, this.state.total)
+           this.setState({
+               now: perc
+           })
+        })
+
+    }
+    componentWillMount(){
+        this.setPoints()
     }
 
     render() {

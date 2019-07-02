@@ -9,7 +9,7 @@ import find from 'lodash/find';
 import ConfirmationModal from '../ConfirmationModal.js';
 
 // STYLES
-import { StyledCol, ColProgress, BtnsHabit, WrapHabit,WrapTitleHabit, TitleHabit, HabitDate } from './HabitListStyle.js';
+import { StyledCol, ColProgress, BtnsHabit, WrapHabit, WrapTitleHabit, TitleHabit, HabitDate } from './HabitListStyle.js';
 
 
 export default class HabitList extends Component {
@@ -23,24 +23,39 @@ export default class HabitList extends Component {
             showModal: false,
             errorInput: false,
             percentage: 0,
+            pointsFB: 0,
+            currMonthDate: '',
         }
         const { idkey } = this.props.habit;
         this.datesFirebaseRef = firebase.database().ref('habits/' + idkey).child('dates');
         this.idHabitFirebaseRef = firebase.database().ref('habits/' + idkey);
     }
+    componentWillMount() {
+        this.setCurrentMonthDate();
+    }
 
 
     componentDidMount() {
+        // this.setCurrentMonthDate();
+
         let daysInCurrentMonthArr = this.getFormatedDaysArray();
         this.setState({
-            daysInMonth: daysInCurrentMonthArr,
+            daysInMonth: daysInCurrentMonthArr
         })
-
         this.setPercentage()
+    }
+
+    setCurrentMonthDate() {
+        let currMonthDate = moment().format("YYYY-MM");
+
+        this.setState({
+            currMonthDate: currMonthDate
+        })
     }
 
     //DATES FORMAT: DD-MM-YYYY
     getFormatedDaysArray = () => {
+
         let daysInMonthMoment = moment().daysInMonth(); // 30
         let arrFormatDates = [];
 
@@ -55,7 +70,7 @@ export default class HabitList extends Component {
 
 
 
-    handleClickOnTask(number, active){ // add/remove date for each task
+    handleClickOnTask(number, active) { // add/remove date for each task
         if (active) {
             this.removeDate(number)
             return;
@@ -64,10 +79,10 @@ export default class HabitList extends Component {
     }
 
     checkIfActive = (date) => {
-        if(!this.props.habit.dates)
+        if (!this.props.habit.dates)
             return false;
 
-        return typeof find(this.props.habit.dates, {'pushDate': date} ) !== 'undefined'
+        return typeof find(this.props.habit.dates, { 'pushDate': date }) !== 'undefined'
     }
 
     // DATES
@@ -85,10 +100,10 @@ export default class HabitList extends Component {
         removeRefs.once('value', snapshot => {
             let data = snapshot.val()
             let dataId;
-            if(data) {
+            if (data) {
                 dataId = Object.keys(data)[0]
             }
-            this.datesFirebaseRef.child(dataId).remove() 
+            this.datesFirebaseRef.child(dataId).remove()
         }).then(() => {
             this.subtractPoint()
         })
@@ -96,19 +111,19 @@ export default class HabitList extends Component {
 
     // POINTS
     addPoint = () => {
-        if (this.props.habit.points >= 0 && (this.props.habit.points <= (this.state.daysInMonth.length - 1))) {
-            this.idHabitFirebaseRef.update({ habitPoints: this.props.habit.points + 1 }).then(() => {
+        // if (this.props.habit.points >= 0 && (this.props.habit.points <= (this.state.daysInMonth.length - 1))) {
+        //     this.idHabitFirebaseRef.update({ habitPoints: this.props.habit.points + 1 }).then(() => {
                 this.setPercentage()
-            });
-        }
+        //     });
+        // }
     }
 
     subtractPoint = () => {
-        if (this.props.habit.points === 0)
-            return;
-        this.idHabitFirebaseRef.update({ habitPoints: this.props.habit.points - 1 }).then(() => {
+        // if (this.props.habit.points === 0)
+        //     return;
+        // this.idHabitFirebaseRef.update({ habitPoints: this.props.habit.points - 1 }).then(() => {
             this.setPercentage()
-        });
+        // });
     }
 
     // PERCENTAGES
@@ -116,10 +131,27 @@ export default class HabitList extends Component {
         return Math.ceil(100 * part / total);
     }
     setPercentage = () => {
-        let percentage = this.changeIntoPercentage(this.props.habit.points, moment().daysInMonth());
-        this.setState({
-            percentage
+        let pushDate = this.datesFirebaseRef.orderByChild('pushDate').startAt(this.state.currMonthDate);
+
+        pushDate.once('value', snapshot => {
+            let dates = snapshot.val()
+
+            let currentDates = [];
+            for (let date in dates) {
+                currentDates.push(date);
+            }
+            let points = currentDates.length
+            this.setState({
+                pointsFB: points
+            })
+
+        }).then(() => {
+            let percentage = this.changeIntoPercentage(this.state.pointsFB, moment().daysInMonth());
+            this.setState({
+                percentage
+            })
         })
+
     }
 
     // HABIT TITLES
@@ -165,7 +197,7 @@ export default class HabitList extends Component {
     render() {
         const { habit } = this.props;
 
-        const { daysInMonth, editingTask, inputHabitTitle, errorInput, showModal, percentage } = this.state;
+        const { daysInMonth, editingTask, inputHabitTitle, errorInput, showModal, percentage, pointsFB } = this.state;
 
 
 
@@ -173,27 +205,27 @@ export default class HabitList extends Component {
             <StyledCol className="col-md-6 col-sm-12">
 
                 <WrapTitleHabit>
-                   
-                        {!editingTask && <TitleHabit>{habit.title}</TitleHabit>}
-                        {editingTask &&
-                            <input type="text"
-                                className={errorInput ? 'input-title error' : 'input-title'}
-                                ref={input => input && input.focus()}
-                                value={inputHabitTitle}
-                                onChange={this.handleChange}
-                                onKeyPress={e => { if (e.key === 'Enter') { this.saveHabitTitle() } }}
-                            />
+
+                    {!editingTask && <TitleHabit>{habit.title}</TitleHabit>}
+                    {editingTask &&
+                        <input type="text"
+                            className={errorInput ? 'input-title error' : 'input-title'}
+                            ref={input => input && input.focus()}
+                            value={inputHabitTitle}
+                            onChange={this.handleChange}
+                            onKeyPress={e => { if (e.key === 'Enter') { this.saveHabitTitle() } }}
+                        />
+                    }
+                    <BtnsHabit>
+                        {!editingTask
+                            ?
+                            <Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button>
+                            :
+                            <Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz tytuł"><i className="fas fa-check"></i></Button>
                         }
-                        <BtnsHabit>
-                            {!editingTask
-                                ?
-                                <Button variant="light mr-2" size="sm" onClick={this.editHabitTitle} title="edytuj tytuł"><i className="fas fa-edit" ></i></Button>
-                                :
-                                <Button variant="light mr-2" size="sm" onClick={this.saveHabitTitle} title="zapisz tytuł"><i className="fas fa-check"></i></Button>
-                            }
-                            <Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń nawyk"><i className="far fa-trash-alt" ></i></Button>
-                        </BtnsHabit>
-        
+                        <Button variant="light" size="sm" onClick={this.askToConfirmRemoval} title="usuń nawyk"><i className="far fa-trash-alt" ></i></Button>
+                    </BtnsHabit>
+
 
                     <ConfirmationModal
                         showmodal={showModal}
@@ -208,10 +240,10 @@ export default class HabitList extends Component {
                         <WrapHabit>
                             {daysInMonth.map(
                                 (date, index) => {
-                                   
+
                                     const active = this.checkIfActive(date)
                                     const rowClass = active ? 'task taskDone' : 'task'
-                                    
+
                                     return <HabitDate key={date} className={rowClass} data-date={date} onClick={() => this.handleClickOnTask(date, active)}>{index + 1}</HabitDate>
 
                                 }
@@ -222,7 +254,7 @@ export default class HabitList extends Component {
                     <ColProgress md={5} sm={12}>
                         <p className="mb-0">Postęp:</p>
                         <ProgressPercentageChart percentage={percentage} />
-                        <p>{habit.points}/30</p>
+                        <p>{pointsFB}/{daysInMonth.length}</p>
                     </ColProgress>
                 </Row>
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import firebase from '../../firebase.js'
 import { Navbar, Nav } from 'react-bootstrap';
+import moment from 'moment';
 
 // COMPONENTS
 import Loader from './Loader/Loader.js';
@@ -17,14 +18,22 @@ class MainPage extends Component {
 		this.state = {
 			habits: null,
 			loading: true,
+			currentMonthDate: ''
 		}
 		this.timeout = null;
 	}
-
+	componentWillMount(){
+		this.setCurrentMonthDateFromMoment();
+	}
 	componentDidMount() {
 		this.setHabits();
 	}
-
+	async setCurrentMonthDateFromMoment() {
+		let momentMonthDate = moment().format("YYYY-MM");
+        await this.setState({
+            currentMonthDate: momentMonthDate
+		})
+    }
 
 	setHabits = () => {
 
@@ -52,6 +61,7 @@ class MainPage extends Component {
 		const {
 			loading,
 			habits,
+			currentMonthDate
 		} = this.state;
 
 		return (
@@ -69,8 +79,8 @@ class MainPage extends Component {
 							</ContainerApp>
 						</Navbar>
 
-						<Route path={'/'} exact render={() => <HabitsPage habits={habits} />} />
-						<Route path={'/stats'} render={() => <StatsPage habits={habits} />} />
+						<Route path={'/'} exact render={() => <HabitsPage habits={habits} currentMonthDate={currentMonthDate} />} />
+						<Route path={'/stats'} render={() => <StatsPage habits={habits} currentMonthDate={currentMonthDate}/>} />
 
 					</Router>
 				}
