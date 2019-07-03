@@ -27,8 +27,11 @@ export default class HabitList extends Component {
             currMonthDate: '',
         }
         const { idkey } = this.props.habit;
-        this.datesFirebaseRef = firebase.database().ref('habits/' + idkey).child('dates');
-        this.idHabitFirebaseRef = firebase.database().ref('habits/' + idkey);
+        
+        let uid = firebase.auth().currentUser.uid;
+		
+        this.datesFirebaseRef = firebase.database().ref('/users/' + uid + '/habits/' + idkey).child('dates');
+        this.idHabitFirebaseRef = firebase.database().ref('/users/' + uid + '/habits/' + idkey);
     }
     componentWillMount() {
         this.setCurrentMonthDate();

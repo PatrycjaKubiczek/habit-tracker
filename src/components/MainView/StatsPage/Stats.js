@@ -17,8 +17,9 @@ export default class Stats extends React.Component {
         return Math.ceil(100 * part / total);
     }
     setPoints= () => {
+        let uid = firebase.auth().currentUser.uid;
         let daysInMonthMoment = moment().daysInMonth();
-        let pushDate = firebase.database().ref('habits/' + this.props.habit.idkey).child('dates').orderByChild('pushDate').startAt(this.props.currentMonthDate);
+        let pushDate = firebase.database().ref('/users/' + uid + '/habits/' + this.props.habit.idkey).child('dates').orderByChild('pushDate').startAt(this.props.currentMonthDate);
 
         pushDate.once('value', snapshot => {
             let dates = snapshot.val()

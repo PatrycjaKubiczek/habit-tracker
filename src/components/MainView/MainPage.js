@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import firebase from '../../firebase.js'
-import { Navbar, Nav } from 'react-bootstrap';
+
 import moment from 'moment';
 
 // COMPONENTS
 import Loader from './Loader/Loader.js';
 import HabitsPage from './HabitsPage/HabitsPage.js';
+import Navigation from './Navigation/Navigation.js';
 
 // STYLES
 import StatsPage from './StatsPage/StatsPage.js'
-import { ContainerApp } from './MainPageStyle.js'
+
 
 class MainPage extends Component {
 	constructor(props) {
@@ -28,19 +29,25 @@ class MainPage extends Component {
 	componentDidMount() {
 		this.setHabits();
 	}
+	componentDidUpdate(prevProps, prevState){
+		// console.log(this.state.habits)
+		if(this.state.habits !== prevState.habits){
+		}
+	}
 	async setCurrentMonthDateFromMoment() {
 		let momentMonthDate = moment().format("YYYY-MM");
         await this.setState({
             currentMonthDate: momentMonthDate
 		})
-    }
+	}
 
 	setHabits = () => {
+		let uid = firebase.auth().currentUser.uid;
 
-		const habitRef = firebase.database().ref('habits');
+		const habitRef = firebase.database().ref('/users/' + uid + '/habits')
 		habitRef.on('value', snapshot => {
+			
 			let habits = snapshot.val(); // mt
-
 			let newState = [];
 			for (let habit in habits) {
 				newState.push({
@@ -54,7 +61,26 @@ class MainPage extends Component {
 				habits: newState,
 				loading: false
 			})
-		});
+		  });
+		
+		// const habitRef = firebase.database().ref('habits');
+		// habitRef.on('value', snapshot => {
+		// 	let habits = snapshot.val(); // mt
+
+		// 	let newState = [];
+		// 	for (let habit in habits) {
+		// 		newState.push({
+		// 			idkey: habit,
+		// 			title: habits[habit].habitTitle,
+		// 			points: habits[habit].habitPoints,
+		// 			dates: habits[habit].dates,
+		// 		});
+		// 	}
+		// 	this.setState({
+		// 		habits: newState,
+		// 		loading: false
+		// 	})
+		// });
 	}
 
 	render() {
@@ -69,16 +95,8 @@ class MainPage extends Component {
 				{loading && <Loader />}
 				{!loading &&
 					<Router>
-						<Navbar style={{ backgroundColor: '#373f51' }} variant="dark">
-							<ContainerApp>
-								<Navbar.Brand href={process.env.PUBLIC_URL + '/'}>Habit tracker</Navbar.Brand>
-								<Nav className="ml-auto">
-									<Link className="nav-link" to={'/'}>Nawyki</Link>
-									<Link className="nav-link" to={'/stats'}>Statystyki</Link>
-								</Nav>
-							</ContainerApp>
-						</Navbar>
-
+						<Navigation user={this.props.user} />
+						
 						<Route path={'/'} exact render={() => <HabitsPage habits={habits} currentMonthDate={currentMonthDate} />} />
 						<Route path={'/stats'} render={() => <StatsPage habits={habits} currentMonthDate={currentMonthDate}/>} />
 

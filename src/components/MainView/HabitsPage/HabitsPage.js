@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import firebase from '../../../firebase.js';
-import { Col, Button } from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
 import moment from 'moment';
 import 'moment/locale/pl';
 
@@ -16,14 +16,13 @@ import { ContainerHabits, ErrorInfo } from './HabitsPageStyle'
 class HabitsPage extends Component {
 	constructor(props) {
 		super(props)
-		console.log(this.props)
 		this.state = {
 			inputNewHabit: '',
 			error: false,
 			currentMonthTitle: '',
 			disableBtn: false,
 			showToast: false,
-			currentDate: ''
+			currentDate: '',
 		}
 		this.timeout = null;
 	}
@@ -35,10 +34,8 @@ class HabitsPage extends Component {
 	}
 
 	setCurrentMonth(currentMonth) {
-		// console.log(currentMonth)
 		if (currentMonth) {
 			let currentMonthMomentTitle = moment(currentMonth).format("MMMM");
-			console.log()
 			this.setState({
 				currentMonthTitle: currentMonthMomentTitle,
 			})
@@ -68,13 +65,18 @@ class HabitsPage extends Component {
 
 	// get value from input for creating new habit in database
 	addNewHabit = (e) => {
+		let uid = firebase.auth().currentUser.uid;
+
+		// firebase.database().ref('/users/' + uid + '/habits')
+
+
 		if (this.state.inputNewHabit.length === 0) {
 			this.setState({
 				error: true
 			})
 			return
 		}
-		firebase.database().ref('habits').push({
+		firebase.database().ref('/users/' + uid + '/habits').push({
 			habitTitle: this.state.inputNewHabit,
 			habitPoints: 0,
 			dates: {},
@@ -93,22 +95,17 @@ class HabitsPage extends Component {
 			showToast: false
 		})
 	}
-	previousMonth() {
-		// let newDate = moment(currentMonth)
-		// // console.log(newDate)
-		let prevMonth = moment(this.props.currentMonthDate).subtract(1, 'months')
-		this.setCurrentMonth(prevMonth)
-
-		console.log(prevMonth)
-		// let propsMonth = this.props.currentMonthDate
-		// console.log(propsMonth)
-	}
-	nextMonth() {
-		// let currentDate = moment()
-		let nextMonth = moment().add(1, 'months')
-		console.log(nextMonth)
-		this.setCurrentMonth(nextMonth)
-	}
+	// previousMonth() {
+	// 	// let newDate = moment(currentMonth)
+	// 	let prevMonth = moment(this.props.currentMonthDate).subtract(1, 'months')
+	// 	this.setCurrentMonth(prevMonth)
+	// 	// let propsMonth = this.props.currentMonthDate
+	// }
+	// nextMonth() {
+	// 	// let currentDate = moment()
+	// 	let nextMonth = moment().add(1, 'months')
+	// 	this.setCurrentMonth(nextMonth)
+	// }
 
 
 	render() {
@@ -118,6 +115,7 @@ class HabitsPage extends Component {
 			disableBtn,
 			inputNewHabit,
 			showToast,
+			habits
 		} = this.state;
 
 		return (
@@ -140,10 +138,12 @@ class HabitsPage extends Component {
 						</Col>
 					</RowSubtitle>
 				</ContainerApp>
-
+			
 				<ContainerHabits>
-					{
+					{(this.props.habits !== null) && (this.props.habits.length !== 0) ?
 						this.props.habits.map((habit) => <HabitList habit={habit} key={habit.idkey} />)
+						: 
+						<h5>Nie utworzono jeszcze żadnych nawyków</h5>
 					}
 
 				</ContainerHabits>
