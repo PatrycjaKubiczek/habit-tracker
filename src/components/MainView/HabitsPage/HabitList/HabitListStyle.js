@@ -4,7 +4,7 @@ import { Col } from 'react-bootstrap';
 export const StyledCol = styled.div`
 padding: 20px;
 border: 1px solid #ddd;
-margin: 10px -10px; 
+margin: 10px -5px; 
 background: #fff;
 border-radius: 5px;
 user-select: none;

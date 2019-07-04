@@ -39,3 +39,26 @@ code {
   color: white;
   opacity: 1;
 }
+.nav-user--name {
+  color: white;
+  font-weight: bold;
+   padding: 0.5rem 1rem;
+}
+.displayFlexMobile {
+  width: 100%;
+  display: flex;
+}
+@media screen and (max-width: 769px){
+  .navbar-nav {
+      display: flex;
+      flex-direction: row !important;
+      justify-content: center
+  }
+  .displayFlexMobile {
+    display: flex;
+  }
+  .nav-link, .nav-user--name  {
+    padding: 10px 10px 10px 0 !important;
+  }
+ 
+}
