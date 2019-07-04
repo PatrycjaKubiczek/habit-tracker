@@ -8,6 +8,7 @@ import 'moment/locale/pl';
 import HabitList from './HabitList/HabitList.js';
 import InputHabitTitle from './InputHabitTitle.js';
 import ToastHabit from './ToastHabit.js';
+import Calendar from './Calendar.js';
 
 // STYLES
 import { ContainerApp, RowSubtitle } from './../MainPageStyle.js'
@@ -20,7 +21,6 @@ class HabitsPage extends Component {
 			inputNewHabit: '',
 			error: false,
 			currentMonthTitle: '',
-			disableBtn: false,
 			showToast: false,
 			currentDate: '',
 		}
@@ -30,7 +30,7 @@ class HabitsPage extends Component {
 		this.setCurrentMonth()
 	}
 	componentDidUpdate() {
-		// this.setCurrentMonth()
+
 	}
 
 	setCurrentMonth(currentMonth) {
@@ -67,9 +67,6 @@ class HabitsPage extends Component {
 	addNewHabit = (e) => {
 		let uid = firebase.auth().currentUser.uid;
 
-		// firebase.database().ref('/users/' + uid + '/habits')
-
-
 		if (this.state.inputNewHabit.length === 0) {
 			this.setState({
 				error: true
@@ -80,11 +77,13 @@ class HabitsPage extends Component {
 			habitTitle: this.state.inputNewHabit,
 			habitPoints: 0,
 			dates: {},
-		}).then(
+		}).then(() =>{
+			console.log(this.state.showToast)
 			this.setState({
 				showToast: true
 			})
-		);
+			
+		});
 		this.setState({
 			error: false,
 			inputNewHabit: ''
@@ -112,17 +111,16 @@ class HabitsPage extends Component {
 		const {
 			error,
 			currentMonthTitle,
-			disableBtn,
 			inputNewHabit,
-			showToast,
-			habits
+			showToast
 		} = this.state;
 
 		return (
 			<>
-				<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast} />
+				
 				<ContainerApp>
 					<RowSubtitle>
+						<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast} />
 						{/* <Button onClick={() => this.previousMonth()}>prev</Button> */}
 						<h2> {currentMonthTitle} </h2>
 						{/* <Button onClick={() => this.nextMonth()}>next</Button> */}
@@ -131,7 +129,6 @@ class HabitsPage extends Component {
 								error={error}
 								handleChange={this.handleChangeOnInput}
 								handleClick={this.addNewHabit}
-								className={disableBtn ? 'disabled' : null}
 								inputHabit={inputNewHabit}
 							/>
 							{error && <ErrorInfo>* pole jest wymagane </ErrorInfo>}
@@ -140,6 +137,7 @@ class HabitsPage extends Component {
 				</ContainerApp>
 			
 				<ContainerHabits>
+
 					{(this.props.habits !== null) && (this.props.habits.length !== 0) ?
 						this.props.habits.map((habit) => <HabitList habit={habit} key={habit.idkey} />)
 						: 

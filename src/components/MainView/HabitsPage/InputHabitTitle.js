@@ -5,20 +5,21 @@ export default class InputHabitTitle extends React.Component {
 
 	render() {
 		return (
-			
+
 			<InputGroup className="mb-3">
-			<FormControl ref="taskInput"
-			placeholder="wpisz nazwę..."
-			aria-label="nazwa"
-			onChange={this.props.handleChange}
-			style={{boxShadow: 'none'}}
-			className={this.props.error ? 'error' : ''}
-			value={this.props.inputHabit}
-			/>
-			
-			<InputGroup.Append>
-			<Button onClick={this.props.handleClick} style={{borderColor: '#58a4b0', backgroundColor: '#58a4b0', boxShadow: 'none'}}>dodaj nowy nawyk</Button>
-			</InputGroup.Append>
+				<FormControl ref="taskInput"
+					placeholder="wpisz nazwę..."
+					aria-label="nazwa"
+					onChange={this.props.handleChange}
+					style={{ boxShadow: 'none' }}
+					className={this.props.error ? 'error' : ''}
+					value={this.props.inputHabit}
+					onKeyPress={e => { if (e.key === 'Enter') { this.props.handleClick() } }}
+				/>
+
+				<InputGroup.Append>
+					<Button variant="info" onClick={this.props.handleClick}>dodaj nowy nawyk</Button>
+				</InputGroup.Append>
 			</InputGroup>
 		);
 	}

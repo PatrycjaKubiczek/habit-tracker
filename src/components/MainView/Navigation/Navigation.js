@@ -16,11 +16,10 @@ class Navigation extends Component {
                         <Link className="nav-link" to={ROUTES.STATS}>Statystyki</Link>
                     </Nav>
                     <Nav className="ml-auto">
-                    <span style={{color: 'white', fontWeight: 'bold',padding: '0.5rem 1rem'}}>
-                    <i className="far fa-user mr-2" ></i>
-                    {firebase.auth().currentUser.displayName}</span>  
-                        {/* {this.props.user}  */}
-                        <Button variant="secondary" onClick={() => firebase.auth().signOut()}>Wyloguj</Button>
+                        <span style={{ color: 'white', fontWeight: 'bold', padding: '0.5rem 1rem' }}>
+                            <i className="far fa-user mr-2" ></i>
+                            {firebase.auth().currentUser.displayName}</span>
+                        <Button variant="link" className="nav-link" onClick={() => firebase.auth().signOut()}>Wyloguj</Button>
                     </Nav>
                 </ContainerApp>
             </Navbar>

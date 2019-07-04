@@ -30,3 +30,12 @@ code {
   flex-direction: column;
   min-height: 100vh;
 }
+
+.toast-header .close{
+  color: white;
+  opacity: 0.5;
+}
+.toast-header .close:hover{
+  color: white;
+  opacity: 1;
+}

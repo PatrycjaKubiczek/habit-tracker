@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter as Router, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Route } from "react-router-dom";
 import firebase from '../../firebase.js'
 
 import moment from 'moment';
@@ -17,70 +17,51 @@ class MainPage extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			habits: null,
 			loading: true,
-			currentMonthDate: ''
+			currentMonthDate: '',
 		}
 		this.timeout = null;
 	}
-	componentWillMount(){
+	componentWillMount() {
 		this.setCurrentMonthDateFromMoment();
+		
 	}
 	componentDidMount() {
 		this.setHabits();
 	}
-	componentDidUpdate(prevProps, prevState){
-		// console.log(this.state.habits)
-		if(this.state.habits !== prevState.habits){
-		}
+	componentDidUpdate(prevProps, prevState) {
+		
 	}
 	async setCurrentMonthDateFromMoment() {
 		let momentMonthDate = moment().format("YYYY-MM");
-        await this.setState({
-            currentMonthDate: momentMonthDate
+		await this.setState({
+			currentMonthDate: momentMonthDate
 		})
 	}
 
-	setHabits = () => {
+	setHabits() {
 		let uid = firebase.auth().currentUser.uid;
-
-		const habitRef = firebase.database().ref('/users/' + uid + '/habits')
-		habitRef.on('value', snapshot => {
-			
-			let habits = snapshot.val(); // mt
-			let newState = [];
-			for (let habit in habits) {
-				newState.push({
-					idkey: habit,
-					title: habits[habit].habitTitle,
-					points: habits[habit].habitPoints,
-					dates: habits[habit].dates,
-				});
-			}
-			this.setState({
-				habits: newState,
-				loading: false
-			})
-		  });
 		
-		// const habitRef = firebase.database().ref('habits');
-		// habitRef.on('value', snapshot => {
-		// 	let habits = snapshot.val(); // mt
+		
+		if (uid) {
+			const habitRef = firebase.database().ref('/users/' + uid + '/habits')
+			habitRef.on('value', snapshot => {
+				let newState = [];
+				let habits = snapshot.val(); // mt
 
-		// 	let newState = [];
-		// 	for (let habit in habits) {
-		// 		newState.push({
-		// 			idkey: habit,
-		// 			title: habits[habit].habitTitle,
-		// 			points: habits[habit].habitPoints,
-		// 			dates: habits[habit].dates,
-		// 		});
-		// 	}
-		// 	this.setState({
-		// 		habits: newState,
-		// 		loading: false
-		// 	})
-		// });
+				for (let habit in habits) {
+					newState.push({
+						idkey: habit,
+						title: habits[habit].habitTitle,
+						dates: habits[habit].dates,
+					});
+				}
+				this.setState({
+					habits: newState,
+					loading: false
+				})
+			});
+		}
 	}
 
 	render() {
@@ -92,13 +73,14 @@ class MainPage extends Component {
 
 		return (
 			<>
+
 				{loading && <Loader />}
 				{!loading &&
 					<Router>
 						<Navigation user={this.props.user} />
-						
+
 						<Route path={'/'} exact render={() => <HabitsPage habits={habits} currentMonthDate={currentMonthDate} />} />
-						<Route path={'/stats'} render={() => <StatsPage habits={habits} currentMonthDate={currentMonthDate}/>} />
+						<Route path={'/stats'} render={() => <StatsPage habits={habits} currentMonthDate={currentMonthDate} />} />
 
 					</Router>
 				}
