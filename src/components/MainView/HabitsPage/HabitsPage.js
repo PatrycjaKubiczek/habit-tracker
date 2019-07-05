@@ -137,6 +137,7 @@ class HabitsPage extends Component {
 				</ContainerApp>
 			
 				<ContainerHabits>
+					{/* <Calendar /> */}
 
 					{(this.props.habits !== null) && (this.props.habits.length !== 0) ?
 						this.props.habits.map((habit) => <HabitList habit={habit} key={habit.idkey} />)
