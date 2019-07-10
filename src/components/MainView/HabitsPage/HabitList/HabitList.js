@@ -7,6 +7,7 @@ import find from 'lodash/find';
 
 // COMPONENTS
 import ConfirmationModal from '../ConfirmationModal.js';
+import Calendar from './../Calendar.js';
 
 // STYLES
 import { StyledCol, ColProgress, BtnsHabit, WrapHabit, WrapTitleHabit, TitleHabit, HabitDate } from './HabitListStyle.js';
@@ -241,6 +242,8 @@ export default class HabitList extends Component {
                 <Row>
                     <Col md={7} sm={12}>
                         <WrapHabit>
+                            
+                            {/* <Calendar daysInMonthProps={daysInMonth} handleClick={this.handleClickOnTask} habitprops={this.props.habit}/> */}
                             {daysInMonth.map(
                                 (date, index) => {
 
