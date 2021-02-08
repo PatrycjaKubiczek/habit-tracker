@@ -8,6 +8,7 @@ import 'moment/locale/pl';
 import HabitList from './HabitList/HabitList.js';
 import InputHabitTitle from './InputHabitTitle.js';
 import ToastHabit from './ToastHabit.js';
+import Calendar from './Calendar.js';
 
 // STYLES
 import { ContainerApp, RowSubtitle } from './../MainPageStyle.js'
@@ -19,21 +20,34 @@ class HabitsPage extends Component {
 		this.state = {
 			inputNewHabit: '',
 			error: false,
-			currentMonth: '',
-			disableBtn: false,
-			showToast: false
+			currentMonthTitle: '',
+			showToast: false,
+			currentDate: '',
 		}
 		this.timeout = null;
 	}
 	componentDidMount() {
 		this.setCurrentMonth()
 	}
+	componentDidUpdate() {
 
-	setCurrentMonth() {
-		let currentMonthMoment = moment().format("MMMM");
-		this.setState({
-			currentMonth: currentMonthMoment
-		})
+	}
+
+	setCurrentMonth(currentMonth) {
+		if (currentMonth) {
+			let currentMonthMomentTitle = moment(currentMonth).format("MMMM");
+			this.setState({
+				currentMonthTitle: currentMonthMomentTitle,
+			})
+			
+		} else {
+			let currentMonthMomentTitle = moment().format("MMMM");
+			this.setState({
+				currentMonthTitle: currentMonthMomentTitle,
+			})
+		}
+
+
 	}
 
 	handleChangeOnInput = e => {
@@ -51,21 +65,25 @@ class HabitsPage extends Component {
 
 	// get value from input for creating new habit in database
 	addNewHabit = (e) => {
+		let uid = firebase.auth().currentUser.uid;
+
 		if (this.state.inputNewHabit.length === 0) {
 			this.setState({
 				error: true
 			})
 			return
 		}
-		firebase.database().ref('habits').push({
+		firebase.database().ref('/users/' + uid + '/habits').push({
 			habitTitle: this.state.inputNewHabit,
 			habitPoints: 0,
 			dates: {},
-		}).then(
+		}).then(() =>{
+			console.log(this.state.showToast)
 			this.setState({
 				showToast: true
 			})
-		);
+			
+		});
 		this.setState({
 			error: false,
 			inputNewHabit: ''
@@ -76,39 +94,55 @@ class HabitsPage extends Component {
 			showToast: false
 		})
 	}
+	// previousMonth() {
+	// 	// let newDate = moment(currentMonth)
+	// 	let prevMonth = moment(this.props.currentMonthDate).subtract(1, 'months')
+	// 	this.setCurrentMonth(prevMonth)
+	// 	// let propsMonth = this.props.currentMonthDate
+	// }
+	// nextMonth() {
+	// 	// let currentDate = moment()
+	// 	let nextMonth = moment().add(1, 'months')
+	// 	this.setCurrentMonth(nextMonth)
+	// }
 
 
 	render() {
 		const {
 			error,
-			currentMonth,
-			disableBtn,
+			currentMonthTitle,
 			inputNewHabit,
 			showToast
 		} = this.state;
 
 		return (
 			<>
-				<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast} />
+				
 				<ContainerApp>
 					<RowSubtitle>
-						<h2> {currentMonth} </h2>
+						<ToastHabit showToast={showToast} handleCloseToast={this.handleCloseToast} />
+						{/* <Button onClick={() => this.previousMonth()}>prev</Button> */}
+						<h2> {currentMonthTitle} </h2>
+						{/* <Button onClick={() => this.nextMonth()}>next</Button> */}
 						<Col md={6} style={{ padding: '0 0 0 10px' }}>
 							<InputHabitTitle
 								error={error}
 								handleChange={this.handleChangeOnInput}
 								handleClick={this.addNewHabit}
-								className={disableBtn ? 'disabled' : null}
 								inputHabit={inputNewHabit}
 							/>
 							{error && <ErrorInfo>* pole jest wymagane </ErrorInfo>}
 						</Col>
 					</RowSubtitle>
 				</ContainerApp>
-
+			
 				<ContainerHabits>
-					{
+					{/* <Calendar /> */}
+
+					{(this.props.habits !== null) && (this.props.habits.length !== 0) ?
 						this.props.habits.map((habit) => <HabitList habit={habit} key={habit.idkey} />)
+						: 
+						<h5>Nie utworzono jeszcze żadnych nawyków</h5>
 					}
 
 				</ContainerHabits>

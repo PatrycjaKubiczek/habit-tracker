@@ -6,6 +6,7 @@ max-width: 900px !important;
 display: flex;
 flex-wrap: wrap;
 justify-content: space-between;
+// padding: 0 !important;
 `
 
 export const StyledCol = styled(Col)`
